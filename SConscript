@@ -1,17 +1,11 @@
-# for module compiling
-import os
-Import('RTT_ROOT')
-Import('BSP_ROOT')
+import os.path
 
-cwd = str(Dir('#'))
+Import("env")
+
+__file__ = os.path.abspath((lambda x: x).__code__.co_filename)
+Import('IncludeChilds')
+
 objs = []
-list = os.listdir(cwd)
-
-for d in list:
-    path = os.path.join(cwd, d)
-    if os.path.isfile(os.path.join(path, 'SConscript')):
-        objs = objs + SConscript(os.path.join(d, 'SConscript'))
-
-objs = objs + SConscript(os.path.join(BSP_ROOT, 'drivers/SConscript'))
+objs += IncludeChilds(os.path.dirname(__file__))
 
 Return('objs')

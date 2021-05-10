@@ -1,0 +1,6 @@
+[submodule "rt-thread-w60x"]
+	path = rt-thread-w60x
+	url = git@github.com:GongT/rt-thread-w60x.git
+[submodule "config-tool-client"]
+	path = config-tool-client
+	url = git@github.com:GongT/w60x-config-tool.git
