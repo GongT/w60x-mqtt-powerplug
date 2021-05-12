@@ -90,6 +90,7 @@ static void buzzer_play_delay(uint16_t toneHz, uint8_t volumePercent, uint32_t t
 
 static void beep_thread_main(void *args)
 {
+	LOG_I("beep thread started.");
 	while (1)
 	{
 		if (pop_queue())
@@ -106,7 +107,7 @@ void beep_thread_init()
 	queue_lock = rt_mutex_create("beep_queue", RT_IPC_FLAG_FIFO);
 	assert(queue_lock != NULL);
 
-	thread = rt_thread_create("beep", beep_thread_main, NULL, 32, 1, 10);
+	thread = rt_thread_create("beep", beep_thread_main, NULL, 256, 1, 10);
 	assert(thread != NULL);
 	rt_thread_startup(thread);
 }

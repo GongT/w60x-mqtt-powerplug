@@ -26,6 +26,17 @@ static void handle_wifi_error(int event, struct rt_wlan_buff *buff, void *parame
 	}
 }
 
+static int goto_config_mode_or_return()
+{
+#if AUTO_GOTO_CONFIG
+	goto_config_mode();
+	return 1;
+#else
+	LOG_E("development mode, skip goto_config_mode()");
+	return 0;
+#endif
+}
+
 static int _app_main_init()
 {
 	if (fal_init() == 0)
@@ -48,13 +59,7 @@ static int _app_main_init()
 
 	if (mqtt_client_init() != 0)
 	{
-#if AUTO_GOTO_CONFIG
-		goto_config_mode();
-		return 1;
-#else
-		LOG_E("development mode, skip goto_config_mode()");
-		return 0;
-#endif
+		return goto_config_mode_or_return();
 	}
 
 	rt_wlan_register_event_handler(RT_WLAN_EVT_READY, handle_wifi_connect, RT_NULL);
@@ -63,8 +68,7 @@ static int _app_main_init()
 
 	if (connect_wifi() != 0)
 	{
-		goto_config_mode();
-		return 1;
+		return goto_config_mode_or_return();
 	}
 	start_mqtt();
 

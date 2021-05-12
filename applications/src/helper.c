@@ -10,6 +10,8 @@
 
 __attribute__((noreturn)) void __FATAL_ERROR(const char *const MSG, ...)
 {
+	beep_error();
+
 	rt_enter_critical();
 
 	printf("\n[FATAL_ERROR] ");
