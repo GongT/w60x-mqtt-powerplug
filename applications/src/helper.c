@@ -24,11 +24,11 @@ __attribute__((noreturn)) void thread_suspend()
 
 	rt_hw_interrupt_enable(temp);
 
-#ifdef RT_USING_FINSH
-	rt_thread_mdelay(1000);
-	list_thread();
-	rt_kputs("\n");
-#endif
+	// #ifdef RT_USING_FINSH
+	// 	rt_thread_mdelay(1000);
+	// 	list_thread();
+	// 	rt_kputs("\n");
+	// #endif
 
 	rt_thread_suspend(self);
 	rt_schedule();

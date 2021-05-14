@@ -1,6 +1,6 @@
 #pragma once
 
-#define AUTO_GOTO_CONFIG 0
+#define AUTO_GOTO_CONFIG 1
 #define DISABLE_REBOOT 1
 
 #define LONG_PRESS_HOLD_MS 1000

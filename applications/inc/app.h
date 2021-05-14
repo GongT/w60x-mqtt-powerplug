@@ -48,3 +48,11 @@ void led_fade(enum led_id id, uint32_t cycle_ms);
 void led_static(enum led_id id, uint8_t light_percent);
 void led_off(enum led_id id);
 void led_on(enum led_id id);
+
+/* config mode */
+void alert_config_start();
+void alert_config_end();
+void alert_config_fail();
+enum CONFIG_STATUS goto_config_mode_with_alert();
+
+/* wifi */

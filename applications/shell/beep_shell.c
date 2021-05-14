@@ -7,7 +7,7 @@ static rt_bool_t parse_state(beep_state_t store, int argc, char **argv)
 {
 	if (argc != 4)
 	{
-		rt_kprintf("%s tone<Hz> volume<%%> time<ms>", argv[0]);
+		rt_kprintf("%s tone<Hz> volume<%%> time<ms>\n", argv[0]);
 		return RT_FALSE;
 	}
 

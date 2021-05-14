@@ -4,8 +4,10 @@
 #include <easyflash.h>
 #include <fal.h>
 #include <stdlib.h>
-#include <gongt/config_tool.h>
 #include "init.h"
+#include <gongt/config_tool.h>
+
+__attribute__((noreturn)) extern void rt_thread_exit();
 
 static void switch_priority()
 {
@@ -13,13 +15,19 @@ static void switch_priority()
 	rt_thread_control(rt_thread_self(), RT_THREAD_CTRL_CHANGE_PRIORITY, &p);
 }
 
-inline static void goto_config_mode_or_quit()
+__attribute__((noreturn)) inline static void goto_config_mode_or_quit()
 {
 #if AUTO_GOTO_CONFIG
-	goto_config_mode();
+	enum CONFIG_STATUS ret = goto_config_mode_with_alert();
+#if DISABLE_REBOOT
+	LOG_E("development mode, skip reboot(), main thread will NOT continue!");
+	rt_thread_exit();
 #else
-	LOG_E("development mode, skip goto_config_mode(), main function will NOT continue!");
-	thread_suspend();
+	reboot();
+#endif
+#else
+	LOG_E("development mode, skip goto_config_mode(), main thread will NOT continue!");
+	rt_thread_exit();
 #endif
 }
 
