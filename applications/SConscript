@@ -4,8 +4,6 @@ from os.path import join
 cwd = GetCurrentDir()
 src = Glob('src/*.c')
 src += Glob('src/**/*.c')
-# src += Glob('test/*.c')
-# src += Glob('test/**/*.c')
 CPPPATH = [join(cwd, 'inc')]
 
 gcc_warn_flag = [
@@ -20,10 +18,20 @@ gcc_warn_flag = [
     'no-unused-parameter',
 ]
 
-group = DefineGroup('Applications',
+objs = []
+objs += DefineGroup('Applications',
                     src,
                     depend=[''],
                     CPPPATH=CPPPATH,
                     LOCAL_CCFLAGS=' -W' + ' -W'.join(gcc_warn_flag) + ' ')
 
-Return('group')
+src = Glob('shell/*.c')
+src += Glob('shell/**/*.c')
+
+objs += DefineGroup('ShellCmds',
+                    src,
+                    depend=['RT_USING_FINSH'],
+                    CPPPATH=CPPPATH,
+                    LOCAL_CCFLAGS=' -W' + ' -W'.join(gcc_warn_flag) + ' ')
+
+Return('objs')

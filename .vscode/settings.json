@@ -13,7 +13,9 @@
 		"SConstruct": "python",
 		"functional": "c",
 		"typeinfo": "c",
-		"cstdint": "c"
+		"cstdint": "c",
+		"random": "c",
+		"cstdio": "c"
 	},
 	"files.exclude": {
 		"**/.git": true,

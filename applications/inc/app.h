@@ -18,6 +18,15 @@ rt_bool_t key_is_pressed();
 void beep_error();
 void buzzer_beep(uint16_t toneHz, uint8_t volumePercent, uint32_t timeMs);
 
+struct beep_state
+{
+	uint16_t toneHz;
+	uint8_t volumePercent;
+	uint32_t timeMs;
+};
+typedef struct beep_state beep_state;
+typedef struct beep_state *beep_state_t;
+
 /* 继电器 */
 enum relay_state_t
 {
@@ -30,11 +39,12 @@ void relay_set(enum relay_state_t on);
 /* LED灯 */
 enum led_id
 {
-	LED_RED = PWM_CH_RED,
-	LED_GREEN = PWM_CH_GREEN,
-};
-void led_blink(enum led_id id, uint32_t on_time_ms, uint32_t off_time_ms);
-void led_fade(enum led_id id, uint32_t on_time_ms, uint32_t off_time_ms);
-void led_static(enum led_id id, uint32_t light_percent);
+	LED_RED = 0,
+	LED_GREEN = 1,
+} __attribute__((__packed__));
+
+void led_blink(enum led_id id, uint32_t cycle_ms);
+void led_fade(enum led_id id, uint32_t cycle_ms);
+void led_static(enum led_id id, uint8_t light_percent);
 void led_off(enum led_id id);
 void led_on(enum led_id id);

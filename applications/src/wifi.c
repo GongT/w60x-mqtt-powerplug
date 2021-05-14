@@ -6,6 +6,31 @@
 
 void wifi_status_dump();
 
+static void handle_wifi_connect(int event, struct rt_wlan_buff *buff, void *parameter)
+{
+	struct ip_addr_t *ip = (struct ip_addr_t *)buff;
+	LOG_I(" * IP Addr: %s", ip);
+}
+
+static void handle_wifi_error(int event, struct rt_wlan_buff *buff, void *parameter)
+{
+	if (event == RT_WLAN_EVT_STA_CONNECTED_FAIL)
+	{
+		LOG_E("event: RT_WLAN_EVT_STA_CONNECTED_FAIL");
+	}
+	else if (event == RT_WLAN_EVT_STA_DISCONNECTED)
+	{
+		LOG_E("event: RT_WLAN_EVT_STA_DISCONNECTED");
+	}
+}
+
+static init_wifi()
+{
+	rt_wlan_register_event_handler(RT_WLAN_EVT_READY, handle_wifi_connect, RT_NULL);
+	rt_wlan_register_event_handler(RT_WLAN_EVT_STA_CONNECTED_FAIL, handle_wifi_error, RT_NULL);
+	rt_wlan_register_event_handler(RT_WLAN_EVT_STA_DISCONNECTED, handle_wifi_error, RT_NULL);
+}
+
 int connect_wifi()
 {
 	rt_wlan_set_mode(RT_WLAN_DEVICE_STA_NAME, RT_WLAN_STATION);
