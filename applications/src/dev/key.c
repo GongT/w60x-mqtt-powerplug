@@ -70,7 +70,7 @@ __attribute__((noreturn)) static void key_event_reduce_main(void *arg)
 			continue;
 		}
 
-		rt_tick_t delta_ms = store & 0x7FFFFFFF;
+		// rt_tick_t delta_ms = store & 0x7FFFFFFF;
 		rt_bool_t is_key_down = (store & 0x80000000) != 0;
 
 		if (is_key_down)

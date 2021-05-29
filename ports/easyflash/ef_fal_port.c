@@ -26,8 +26,6 @@
  * Created on: 2018-05-19
  */
 
-#define EF_STR_ENV_VALUE_MAX_SIZE 0
-
 #include <easyflash.h>
 #include <stdio.h>
 #include <stdlib.h>

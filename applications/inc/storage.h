@@ -1,7 +1,5 @@
 #pragma once
 
-#define FAL_PARTITION_STORAGE "eflash"
-
 #define STORE_KEY_WIFI_NAME "wifi.name"
 #define STORE_KEY_WIFI_PASS "wifi.pass"
 

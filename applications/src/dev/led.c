@@ -68,7 +68,7 @@ inline static const char *title(enum led_id id)
 {
 	if (id == LED_RED)
 		return "<red led>";
-	else if (id == PWM_CH_GREEN)
+	else if (id == LED_GREEN)
 		return "<green led>";
 	else
 		return "<invalid led>";
@@ -145,11 +145,11 @@ static void led_fade_thread_main(void *arg)
 	}
 }
 
-static void init_base(led_status_base_t thread, enum led_id id, const char *name, void (*entry)(void *parameter), void *parameter)
+static void init_base(led_status_base_t thread, enum led_id id, const char *name, void (*entry)(void *parameter), void *parameter, size_t add_stack)
 {
 	thread->enabled = 0;
 	thread->pwm_channel = get_channel(id);
-	thread->handle = rt_thread_create(name, entry, parameter, 512, RT_THREAD_PRIORITY_MAX - 3, 2);
+	thread->handle = rt_thread_create(name, entry, parameter, add_stack + 512, RT_THREAD_PRIORITY_MAX - 3, 2);
 	assert(thread->handle != NULL);
 	rt_thread_startup(thread->handle);
 	rt_thread_suspend(thread->handle);
@@ -160,11 +160,11 @@ void led_thread_init()
 	assert0(rt_pwm_enable(pwm_dev, PWM_CH_RED));
 	assert0(rt_pwm_enable(pwm_dev, PWM_CH_GREEN));
 
-	init_base(&blinking_status[LED_RED].thread, LED_RED, "red_led_blink", led_blink_thread_main, &blinking_status[LED_RED]);
-	init_base(&blinking_status[LED_GREEN].thread, LED_GREEN, "green_led_blink", led_blink_thread_main, &blinking_status[LED_GREEN]);
+	init_base(&blinking_status[LED_RED].thread, LED_RED, "red_led_blink", led_blink_thread_main, &blinking_status[LED_RED], 0);
+	init_base(&blinking_status[LED_GREEN].thread, LED_GREEN, "green_led_blink", led_blink_thread_main, &blinking_status[LED_GREEN], 0);
 
-	init_base(&fading_status[LED_RED].thread, LED_RED, "red_led_fade", led_fade_thread_main, &fading_status[LED_RED]);
-	init_base(&fading_status[LED_GREEN].thread, LED_GREEN, "green_led_fade", led_fade_thread_main, &fading_status[LED_GREEN]);
+	init_base(&fading_status[LED_RED].thread, LED_RED, "red_led_fade", led_fade_thread_main, &fading_status[LED_RED], 128);
+	init_base(&fading_status[LED_GREEN].thread, LED_GREEN, "green_led_fade", led_fade_thread_main, &fading_status[LED_GREEN], 128);
 
 	led_static(LED_RED, 0);
 	led_static(LED_GREEN, 0);

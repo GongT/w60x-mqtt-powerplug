@@ -30,12 +30,12 @@ static int use(const char *arg)
 {
 	if (str_prefix("red", arg))
 	{
-		rt_kprintf("selected red led");
+		rt_kprintf("selected red led\n");
 		selection = LED_RED;
 	}
 	else if (str_prefix("green", arg))
 	{
-		rt_kprintf("selected green led");
+		rt_kprintf("selected green led\n");
 		selection = LED_GREEN;
 	}
 	else

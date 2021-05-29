@@ -25,19 +25,15 @@ void alert_config_fail()
 {
 	led_off(LED_GREEN);
 	led_on(LED_RED);
-	buzzer_beep(3000, 30, 1000);
-	buzzer_beep(3000, 0, 1000);
-	buzzer_beep(3000, 30, 1000);
-	buzzer_beep(3000, 0, 1000);
-	buzzer_beep(3000, 30, 1000);
+	buzzer_beep(3000, 30, 600);
 }
 
 static rt_bool_t first_success = RT_TRUE;
 
 static void handle_wifi_connect(int event, struct rt_wlan_buff *buff, void *parameter)
 {
-	struct ip_addr_t *ip = (struct ip_addr_t *)buff;
-	LOG_I(" * IP Addr: %s", ip);
+	// struct ip_addr_t *ip = (struct ip_addr_t *)buff;
+	// rt_kprintf(" * IP Addr: %s", ip->);
 
 	if (first_success)
 	{
@@ -73,10 +69,12 @@ static void handle_wifi_error(int event, struct rt_wlan_buff *buff, void *parame
 	}
 }
 
-static init_wifi_alert()
+static int init_wifi_alert()
 {
 	rt_wlan_register_event_handler(RT_WLAN_EVT_READY, handle_wifi_connect, RT_NULL);
 	rt_wlan_register_event_handler(RT_WLAN_EVT_STA_CONNECTED_FAIL, handle_wifi_error, RT_NULL);
 	rt_wlan_register_event_handler(RT_WLAN_EVT_STA_DISCONNECTED, handle_wifi_error, RT_NULL);
+
+	return 0;
 }
 INIT_COMPONENT_EXPORT(init_wifi_alert);

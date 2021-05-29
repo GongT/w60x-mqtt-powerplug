@@ -9,8 +9,6 @@
 static MQTTClient client;
 static int is_started = 0;
 
-#define APPLICATION_KIND "plug"
-
 void start_mqtt()
 {
 	if (is_started)

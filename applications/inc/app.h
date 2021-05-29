@@ -6,8 +6,10 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 
-#include "storage.h"
+__attribute__((noreturn)) extern void rt_thread_exit();
 
+/* 存储 */
+#include "storage.h"
 size_t get_storage_size(const char *key);
 void mq_publish(const char *send_str);
 
@@ -54,5 +56,6 @@ void alert_config_start();
 void alert_config_end();
 void alert_config_fail();
 enum CONFIG_STATUS goto_config_mode_with_alert();
+__attribute__((noreturn)) void goto_config_mode_and_quit();
 
 /* wifi */
