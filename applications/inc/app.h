@@ -11,7 +11,12 @@ __attribute__((noreturn)) extern void rt_thread_exit();
 /* 存储 */
 #include "storage.h"
 size_t get_storage_size(const char *key);
-void mq_publish(const char *send_str);
+
+enum mqtt_topic
+{
+	MQTT_TOPIC_BUTTON_PRESS = 0,
+};
+int action_publish(enum mqtt_topic type, const char *send_str);
 
 /* 按键 */
 rt_bool_t key_is_pressed();

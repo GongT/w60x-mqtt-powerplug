@@ -32,16 +32,13 @@ int main(void)
 	LOG_I("test_env()");
 	test_env();
 
-	LOG_I("mqtt_client_init()");
-	if (mqtt_client_init() != 0)
-		goto_config_mode_and_quit();
-
 	LOG_I("connect_wifi()");
 	if (connect_wifi() != 0)
 		goto_config_mode_and_quit();
 
 	LOG_I("start_mqtt()");
-	start_mqtt();
+	if (start_mqtt() != 0)
+		FATAL_ERROR("failed start mqtt");
 
 	thread_suspend();
 

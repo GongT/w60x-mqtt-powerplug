@@ -9,6 +9,8 @@
 #define FAL_PARTITION_STORAGE "eflash"
 #define EF_STR_ENV_VALUE_MAX_SIZE 0
 
+#define MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED -0xFF00
+
 // ### flash settings
 #include "wm_flash_map.h"
 // ./packages/wm_libraries-latest/Include/Driver/wm_flash_map.h
