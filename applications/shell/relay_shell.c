@@ -1,4 +1,3 @@
-#define DBG_SECTION_NAME "sh:relay"
 #include "shell.h"
 
 static long set_relay_msh(int argc, char **argv)
@@ -8,7 +7,7 @@ static long set_relay_msh(int argc, char **argv)
 	else if (str_eq(argv[1], "off"))
 		relay_set(0);
 	else
-		RETURN_LOG_E("relay on/off");
+		RETURN_WITH_ERR("relay on/off");
 	return 0;
 }
-MSH_CMD_EXPORT_ALIAS(set_relay_msh, relay, set relay on / off);
+DEFINE_CMD(set_relay_msh, relay, set relay on / off);

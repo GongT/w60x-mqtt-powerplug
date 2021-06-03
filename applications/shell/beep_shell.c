@@ -1,4 +1,3 @@
-#define DBG_SECTION_NAME "sh:beep"
 #include "shell.h"
 
 extern struct rt_device_pwm *pwm_dev;
@@ -30,7 +29,7 @@ static long beep_msh(int argc, char **argv)
 	buzzer_beep(s.toneHz, s.volumePercent, s.timeMs);
 	return 0;
 }
-MSH_CMD_EXPORT_ALIAS(beep_msh, beep, beep once);
+DEFINE_CMD(beep_msh, beep, beep once);
 
 #define TEST_QUEUE_SIZE 32
 static beep_state queue[TEST_QUEUE_SIZE];
@@ -40,14 +39,14 @@ static long beep_queue_msh(int argc, char **argv)
 	int c = current + 1;
 
 	if (c == TEST_QUEUE_SIZE)
-		RETURN_LOG_E("test queue is full");
+		RETURN_WITH_ERR("test queue is full");
 	if (!parse_state(&queue[c], argc, argv))
 		return 1;
 
 	current = c;
 	return 0;
 }
-MSH_CMD_EXPORT_ALIAS(beep_queue_msh, beep_queue, add beep to queue);
+DEFINE_CMD(beep_queue_msh, beep_queue, add beep to queue);
 
 static long beep_queue_emit_msh()
 {
@@ -58,4 +57,4 @@ static long beep_queue_emit_msh()
 	current = -1;
 	return 0;
 }
-MSH_CMD_EXPORT_ALIAS(beep_queue_emit_msh, beep_queue_emit, emit beep_queue);
+DEFINE_CMD(beep_queue_emit_msh, beep_queue_emit, emit beep_queue);

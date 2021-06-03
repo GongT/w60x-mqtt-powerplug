@@ -1,8 +1,4 @@
-#define DBG_SECTION_NAME "gpio.led"
-
 #include "io.h"
-
-rt_thread_t thread = NULL;
 
 struct led_status_base
 {
@@ -19,7 +15,7 @@ struct led_fading_thread
 	uint8_t direction;
 	uint32_t tick;
 };
-struct led_fading_thread fading_status[2];
+static struct led_fading_thread fading_status[2];
 typedef struct led_fading_thread *led_fading_thread_t;
 
 struct led_blinking_thread
@@ -28,14 +24,14 @@ struct led_blinking_thread
 	uint8_t current;
 	uint32_t half_cycle;
 };
-struct led_blinking_thread blinking_status[2];
+static struct led_blinking_thread blinking_status[2];
 typedef struct led_blinking_thread *led_blinking_thread_t;
 
 static void pwm_set(uint ch, uint8_t percent)
 {
 	rt_err_t ret = rt_pwm_set(pwm_dev, ch, 1000000, (1000000 - 100 * percent * percent));
 	if (ret != RT_EOK)
-		LOG_W("rt_pwm_set(pwm_dev, %d, %ld, %ld): return %d", ch, 1000000, (1000000 - 100 * percent * percent), ret);
+		KPRINTF_COLOR(11,  "rt_pwm_set(pwm_dev, %d, %ld, %ld): return %d", ch, 1000000, (1000000 - 100 * percent * percent), ret);
 }
 
 static void enable_thread(led_status_base_t element)
@@ -76,7 +72,7 @@ inline static const char *title(enum led_id id)
 
 void led_blink(enum led_id id, uint32_t cycle)
 {
-	LOG_I("%s blink: %d", title(id), cycle);
+	KPRINTF_DIM("%s blink: %d", title(id), cycle);
 	disable_thread(&fading_status[id].thread);
 	blinking_status[id].current = 0;
 	blinking_status[id].half_cycle = rt_tick_from_millisecond(cycle / 2);
@@ -85,7 +81,7 @@ void led_blink(enum led_id id, uint32_t cycle)
 
 void led_fade(enum led_id id, uint32_t cycle)
 {
-	LOG_I("%s fade: %d", title(id), cycle);
+	KPRINTF_DIM("%s fade: %d", title(id), cycle);
 	disable_thread(&blinking_status[id].thread);
 	fading_status[id].current = 0;
 	fading_status[id].direction = 0;
@@ -95,7 +91,7 @@ void led_fade(enum led_id id, uint32_t cycle)
 
 void led_static(enum led_id id, uint8_t light_percent)
 {
-	LOG_I("%s static level: %d", title(id), light_percent);
+	KPRINTF_DIM("%s static level: %d", title(id), light_percent);
 	disable_thread(&fading_status[id].thread);
 	disable_thread(&blinking_status[id].thread);
 	pwm_set(get_channel(id), light_percent);

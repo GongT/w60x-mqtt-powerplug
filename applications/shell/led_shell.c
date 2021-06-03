@@ -1,4 +1,3 @@
-#define DBG_SECTION_NAME "sh:led"
 #include "shell.h"
 
 #define USAGE_RETURN(MSG, ...)                                                                   \
@@ -39,28 +38,28 @@ static int use(const char *arg)
 		selection = LED_GREEN;
 	}
 	else
-		RETURN_LOG_E("invalid selection.");
+		RETURN_WITH_ERR("invalid selection.");
 	return 0;
 }
 
 static int set_fade(int value)
 {
 	if (value < 1000 || value > 10000)
-		RETURN_LOG_E("cycle only allow 1000(1s)~10000(10s)");
+		RETURN_WITH_ERR("cycle only allow 1000(1s)~10000(10s)");
 	led_fade(selection, value);
 	return 0;
 }
 static int set_blink(int value)
 {
 	if (value < 100 || value > 2000)
-		RETURN_LOG_E("cycle only allow 100(0.1s)~2(2s)");
+		RETURN_WITH_ERR("cycle only allow 100(0.1s)~2(2s)");
 	led_blink(selection, value);
 	return 0;
 }
 static int set_static(int value)
 {
 	if (value < 0 || value > 100)
-		RETURN_LOG_E("level only allow 0~100");
+		RETURN_WITH_ERR("level only allow 0~100");
 	led_static(selection, value);
 	return 0;
 }
@@ -93,4 +92,4 @@ static long led_commands(int argc, char **argv)
 
 	return r;
 }
-MSH_CMD_EXPORT_ALIAS(led_commands, led, set led status);
+DEFINE_CMD(led_commands, led, set led status);

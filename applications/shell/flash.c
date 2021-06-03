@@ -1,20 +1,19 @@
-#define DBG_SECTION_NAME "sh:flash"
-
 #include "shell.h"
 #include <stdlib.h>
 #include <drv_flash.h>
 #include <wm_flash_map.h>
 #include <wm_internal_flash.h>
 
-#define USAGE_RETURN(MSG, ...)                                           \
-	do                                                                   \
-	{                                                                    \
-		if (strlen(MSG))                                                 \
-			rt_kprintf(MSG "\n", ##__VA_ARGS__);                         \
-		rt_kprintf("flash read <from address> [size]\n");                \
-		rt_kprintf("flash continue/retry\n");                            \
-		rt_kputs("led write <to address> <hex string without space>\n"); \
-		return 1;                                                        \
+#define USAGE_RETURN(MSG, ...)                                             \
+	do                                                                     \
+	{                                                                      \
+		if (strlen(MSG))                                                   \
+			rt_kprintf(MSG "\n", ##__VA_ARGS__);                           \
+		rt_kputs("flash read <from address> [size]\n");                    \
+		rt_kputs("flash erase <address> [chunk count]\n");                 \
+		rt_kputs("flash continue/retry\n");                                \
+		rt_kputs("flash write <to address> <hex string without space>\n"); \
+		return 1;                                                          \
 	} while (0)
 
 static long continue_from = 0;
@@ -25,10 +24,10 @@ static int flash_read(unsigned long from, size_t size)
 	{
 		from += FLASH_BASE_ADDR;
 	}
-	KPINTF_COLOR(2, "read from %X size %d (end: $X) ...\n", from, size, from + size);
+	KPRINTF_COLOR(2, "read from %X size %d (end: %X) ...\n", from, size, from + size);
 	if (size == 0 || size > 1024)
 	{
-		KPINTF_COLOR(9, "can not read %d bytes, allow 0~1024 bytes\n", size);
+		KPRINTF_COLOR(9, "can not read %d bytes, allow 0~1024 bytes\n", size);
 		return RT_EINVAL;
 	}
 
@@ -54,6 +53,24 @@ static int flash_read(unsigned long from, size_t size)
 
 	return ret;
 }
+static int flash_erase(unsigned long from, size_t size)
+{
+	if (from % INSIDE_FLS_SECTOR_SIZE != 0)
+	{
+		KPRINTF_COLOR(9, "can not erase at 0x%X, not align %d\n", from, INSIDE_FLS_SECTOR_SIZE);
+		return RT_EINVAL;
+	}
+	unsigned int sec = from / INSIDE_FLS_SECTOR_SIZE;
+	while (size-- > 0)
+	{
+		KPRINTF_COLOR(2, "erase sector %d\n", sec);
+		int ret = tls_fls_erase(sec);
+		if (ret != TLS_FLS_STATUS_OK)
+			KPRINTF_COLOR(9, " * failed erase this sector\n");
+		sec++;
+	}
+	return 0;
+}
 
 static long flash_rw_msh(int argc, char **argv)
 {
@@ -68,7 +85,16 @@ static long flash_rw_msh(int argc, char **argv)
 		else if (argc == 4)
 			ret = flash_read(strtoul(argv[2], NULL, 0), (size_t)strtoul(argv[3], NULL, 10));
 		else
-			USAGE_RETURN("size is required!");
+			USAGE_RETURN("address is required!");
+	}
+	else if (str_prefix("erase", argv[1]))
+	{
+		if (argc == 3)
+			ret = flash_erase(strtoul(argv[2], NULL, 0), 16);
+		else if (argc == 4)
+			ret = flash_erase(strtoul(argv[2], NULL, 0), (size_t)strtoul(argv[3], NULL, 10));
+		else
+			USAGE_RETURN("address is required!");
 	}
 	else
 	{
@@ -77,9 +103,9 @@ static long flash_rw_msh(int argc, char **argv)
 
 	if (ret != 0)
 	{
-		KPINTF_COLOR(11, "function return: %d\n", ret);
+		KPRINTF_COLOR(11, "function return: %d\n", ret);
 	}
 
 	return ret;
 }
-MSH_CMD_EXPORT_ALIAS(flash_rw_msh, flash, get_key_status);
+DEFINE_CMD(flash_rw_msh, flash, get_key_status);

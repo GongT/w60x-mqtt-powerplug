@@ -1,5 +1,3 @@
-#define DBG_SECTION_NAME "gpio.beep"
-
 #include "io.h"
 
 #define BEEP_QUEUE 10
@@ -32,7 +30,7 @@ static void buzzer_play(uint16_t toneHz, uint8_t volumePercent)
 #if BEEP_INVERT
 	pulse = period - pulse;
 #endif
-	LOG_I("%dHz, %d%% ::: period=%d, pulse=%d", toneHz, volumePercent, period, pulse);
+	KPRINTF_DIM("%dHz, %d%% ::: period=%d, pulse=%d", toneHz, volumePercent, period, pulse);
 	assert0(rt_pwm_set(pwm_dev, PWM_CH_BEEP, period, pulse));
 }
 
@@ -45,7 +43,7 @@ static void buzzer_play_delay(uint16_t toneHz, uint8_t volumePercent, uint32_t t
 
 static void beep_thread_main(void *args)
 {
-	LOG_I("beep thread started.");
+	KPRINTF_DIM("beep thread started.");
 	beep_state s;
 	while (1)
 	{

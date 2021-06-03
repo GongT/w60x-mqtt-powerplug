@@ -1,10 +1,14 @@
 #pragma once
 
+#include <rtconfig.h>
+
 #include "local_configs.h"
 #include "helpers.h"
 
 #include <rtthread.h>
 #include <rtdevice.h>
+
+#include <rt-thread-w60x/internal-flash.h>
 
 __attribute__((noreturn)) extern void rt_thread_exit();
 

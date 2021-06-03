@@ -1,15 +1,7 @@
 #pragma once
 
-#if !defined(DBG_TAG) && !defined(DBG_SECTION_NAME)
-#warning "此文件没有定义C语言常量DBG_TAG或DBG_SECTION_NAME，默认为unknown"
-#define DBG_TAG "main"
-#endif
-#ifndef DBG_LVL
-#define DBG_LVL DBG_LOG
-#endif
-#include <rtdbg.h>
-
 #include <string.h>
+#include <rtconfig.h>
 
 #define ALWAYS_INLINE __attribute__((always_inline)) inline static
 
@@ -27,26 +19,39 @@ ALWAYS_INLINE int str_eq(const char *str, const char *cmp)
 #define assert0(V) RT_ASSERT(V == 0)
 
 // 输出错误，自动重启
-#define FATAL_ERROR(...) __FATAL_ERROR(__FUNCTION__, __LINE__, __VA_ARGS__)
-__attribute__((noreturn)) void __FATAL_ERROR(const char *const MSG, ...);
+#define FATAL_ERROR(...) __FATAL_ERROR(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+__attribute__((noreturn)) void __FATAL_ERROR(const char *file, const char *fn, int lineno, const char *const MSG, ...);
 
 // 不要自动重启
-#define PHYSICAL_ERROR(...) __PHYSICAL_ERROR(__FUNCTION__, __LINE__, __VA_ARGS__)
-__attribute__((noreturn)) void __PHYSICAL_ERROR(const char *const MSG, ...);
+#define PHYSICAL_ERROR(...) __PHYSICAL_ERROR(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+__attribute__((noreturn)) void __PHYSICAL_ERROR(const char *file, const char *fn, int lineno, const char *const MSG, ...);
 
-#ifdef RT_DEBUG_COLOR
-#define KPINTF_COLOR(COLOR, MSG, ...) rt_kprintf("\033[38;5;" #COLOR "m" MSG "\033[0m", ##__VA_ARGS__)
-#else
-#define KPINTF_COLOR(COLOR, MSG, ...) rt_kprintf(MSG, ##__VA_ARGS__)
+void outputf(const char *msg, ...);
+void outputs(const char *msg);
+
+#ifdef RT_USING_CONSOLE
+#define outputf rt_kprintf
+#define outputs rt_kputs
 #endif
 
-#ifdef RT_DEBUG_COLOR
-#define SET_COLOR(COLOR) rt_kputs("\033[38;5;" #COLOR "m")
+extern char shared_log_buffer[RT_CONSOLEBUF_SIZE];
+
+#if defined(RT_DEBUG_COLOR) || defined(MY_DEBUG_COLOR)
+#define KPRINTF_COLOR(COLOR, MSG, ...) outputf("\r\033[38;5;" #COLOR "m" MSG "\033[0m\n", ##__VA_ARGS__)
+#define KPRINTF_LIGHT(MSG, ...) (outputf("\r\033[1m" MSG "\033[0m\n", ##__VA_ARGS__))
+#define KPRINTF_DIM(MSG, ...) (outputf("\r\033[2m" MSG "\033[0m\n", ##__VA_ARGS__))
+#define SET_COLOR_RAW(RAW) (outputs("\033[" RAW "m"))
 #else
-#define SET_COLOR(COLOR)
+#define KPRINTF_COLOR(COLOR, MSG, ...) outputf(MSG, ##__VA_ARGS__)
+#define KPRINTF_LIGHT(COLOR) outputf(MSG, ##__VA_ARGS__)
+#define KPRINTF_DIM(COLOR) outputf(MSG, ##__VA_ARGS__)
+#define SET_COLOR_RAW(RAW)
 #endif
 
-#define RESET_COLOR(COLOR) SET_COLOR(0)
+#define RESET_COLOR() SET_COLOR_RAW("0")
+#define SET_COLOR(COLOR) SET_COLOR_RAW("38;5;" #COLOR)
+#define SET_BG_COLOR(COLOR) SET_COLOR_RAW("48;5;" #COLOR)
+#define SET_COLOR_DIM() SETCOLOR_RAW("2")
 
 __attribute__((noreturn)) void thread_suspend();
 

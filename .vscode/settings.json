@@ -5,6 +5,7 @@
 	"RTT_ROOT": "/data/DevelopmentRoot/github.com/RT-Thread/rt-thread/",
 	/* env工具目录 */
 	"BUILD_ENV": "debug",
+	"GCC_OPT": "s",
 	/* 当运行生成任务（中的刷写）时，默认使用的端口号，例如COM11就写11 */
 	"serialPortNumber": 0,
 	"files.associations": {
@@ -26,7 +27,8 @@
 		"ostream": "c",
 		"system_error": "c",
 		"tuple": "c",
-		"type_traits": "c"
+		"type_traits": "c",
+		"string": "c"
 	},
 	"files.exclude": {
 		"**/.git": true,
@@ -43,6 +45,10 @@
 		"config-tool-client/rt-thread-w60x": true,
 		"config-tool-client/SConscript": true,
 		"config-tool-client/*.*": true,
+	},
+	"search.exclude": {
+		"**/Demo": true,
+		"**/demo": true,
 	},
 	"[c]": {
 		"editor.defaultFormatter": "ms-vscode.cpptools",

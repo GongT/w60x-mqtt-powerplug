@@ -1,14 +1,12 @@
-#define DBG_SECTION_NAME "storage"
+#include "app.h"
+#include "storage.h"
+#include "init.h"
+#include <gongt/config_tool.h>
 
 #include <easyflash.h>
 #include <rtthread.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#include <gongt/config_tool.h>
-#include "storage.h"
-#include "init.h"
-#include "app.h"
 
 DEFINE_CONFIG_NAMES(
 	STORE_KEY_WIFI_NAME,

@@ -1,5 +1,3 @@
-#define DBG_SECTION_NAME "cfg.beep"
-
 #include "app.h"
 #include <gongt/config_tool.h>
 
@@ -61,11 +59,11 @@ static void handle_wifi_error(int event, struct rt_wlan_buff *buff, void *parame
 
 	if (event == RT_WLAN_EVT_STA_CONNECTED_FAIL)
 	{
-		LOG_E("event: RT_WLAN_EVT_STA_CONNECTED_FAIL");
+		KPRINTF_COLOR(9, "event: RT_WLAN_EVT_STA_CONNECTED_FAIL");
 	}
 	else if (event == RT_WLAN_EVT_STA_DISCONNECTED)
 	{
-		LOG_E("event: RT_WLAN_EVT_STA_DISCONNECTED");
+		KPRINTF_COLOR(9, "event: RT_WLAN_EVT_STA_DISCONNECTED");
 	}
 }
 

@@ -1,5 +1,3 @@
-#define DBG_SECTION_NAME "INIT"
-
 #include "io.h"
 
 #define PWM_DEV_NAME "pwm"
@@ -8,21 +6,21 @@ struct rt_device_pwm *pwm_dev;
 
 static int gpio_init()
 {
-	LOG_I("Start...");
+	KPRINTF_DIM("Start...");
 
 	pwm_dev = (struct rt_device_pwm *)rt_device_find(PWM_DEV_NAME);
 	if (pwm_dev == RT_NULL)
 		PHYSICAL_ERROR("pwm sample run failed! can't find %s device!", PWM_DEV_NAME);
 
-	LOG_I(" * beep.");
+	KPRINTF_DIM(" * beep.");
 	beep_thread_init();
-	LOG_I(" * led.");
+	KPRINTF_DIM(" * led.");
 	led_thread_init();
-	LOG_I(" * key0.");
+	KPRINTF_DIM(" * key0.");
 	key_press_init();
-	LOG_I(" * relay.");
+	KPRINTF_DIM(" * relay.");
 	relay_init();
-	LOG_I("Done.");
+	KPRINTF_DIM("Done.");
 
 	return 0;
 }

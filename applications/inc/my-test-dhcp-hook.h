@@ -1,7 +1,5 @@
 #pragma once
 
-#define DBG_SECTION_NAME "my.dhcp"
-
 #include "app.h"
 #include <lwip/dhcp.h>
 #include "lwip/prot/dhcp.h"

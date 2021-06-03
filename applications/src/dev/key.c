@@ -1,6 +1,3 @@
-#define DBG_SECTION_NAME "gpio.key"
-#define DBG_LVL DBG_ERROR
-
 #include "io.h"
 
 #if RT_TICK_PER_SECOND < 10
@@ -40,7 +37,7 @@ static void key_handler(void *args)
 		return;
 
 	uint32_t msg = (delta & 0x7FFFFFFF) + (key_press_status ? 0x80000000 : 0);
-	LOG_I("key raw event: %d", key_press_status);
+	KPRINTF_DIM("key raw event: %d", key_press_status);
 	rt_mb_send(event_msg_queue, msg);
 }
 
@@ -55,17 +52,17 @@ __attribute__((noreturn)) static void key_event_reduce_main(void *arg)
 		rt_bool_t is_timeout = rt_mb_recv(event_msg_queue, &store, timeout) != RT_EOK;
 		if (is_timeout)
 		{
-			LOG_I("timeout: wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
+			KPRINTF_DIM("timeout: wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
 			timeout = RT_WAITING_FOREVER;
 			if (wait_double_click)
 			{
 				wait_double_click = RT_FALSE;
-				LOG_E("todo: single_click");
+				KPRINTF_COLOR(9, "todo: single_click");
 			}
 			else if (wait_long_press)
 			{
 				wait_long_press = RT_FALSE;
-				LOG_E("todo: long_press");
+				KPRINTF_COLOR(9, "todo: long_press");
 			}
 			continue;
 		}
@@ -75,26 +72,26 @@ __attribute__((noreturn)) static void key_event_reduce_main(void *arg)
 
 		if (is_key_down)
 		{
-			LOG_I("down   : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
+			KPRINTF_DIM("down   : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
 			if (wait_double_click)
 			{
 				wait_double_click = RT_FALSE;
 				timeout = RT_WAITING_FOREVER;
-				LOG_E("todo: double_click");
+				KPRINTF_COLOR(9, "todo: double_click");
 			}
 			else
 			{
-				LOG_I("+wait_long_press");
+				KPRINTF_DIM("+wait_long_press");
 				wait_long_press = RT_TRUE;
 				timeout = RT_TICK_FROM_MILLISECOND(LONG_PRESS_HOLD_MS);
 			}
 		}
 		else
 		{
-			LOG_I("up     : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
+			KPRINTF_DIM("up     : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
 			if (wait_long_press)
 			{
-				LOG_I("+wait_double_click   -wait_long_press");
+				KPRINTF_DIM("+wait_double_click   -wait_long_press");
 				wait_long_press = RT_FALSE;
 				wait_double_click = RT_TRUE;
 				timeout = RT_TICK_FROM_MILLISECOND(DBLCLICK_MAX_DELAY_MS);
@@ -110,11 +107,11 @@ void key_press_init()
 	key_press_status = check();
 	if (key_press_status)
 	{
-		LOG_W("key0 pin (%d) init state is pressed", PIN_KEY);
+		KPRINTF_COLOR(11,  "key0 pin (%d) init state is pressed", PIN_KEY);
 	}
 	else
 	{
-		LOG_W("key0 pin (%d) init state is not pressed", PIN_KEY);
+		KPRINTF_COLOR(11,  "key0 pin (%d) init state is not pressed", PIN_KEY);
 	}
 
 	event_msg_queue = rt_mb_create("key_event", 64, RT_IPC_FLAG_FIFO);

@@ -1,5 +1,3 @@
-#define DBG_SECTION_NAME "mqtt"
-
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -13,15 +11,9 @@
 
 mqtt_client_t *client = NULL;
 #define DEVICE_ROOT_TOPIC "$devices"
-#define assert_not_zero(x) \
-	if (x == 0)            \
-	{                      \
-		LOG_E(#x " is 0"); \
-		return 1;          \
-	}
 
 const char *mqtt_base_topic_name = NULL;
-const char mqtt_device_id[13];
+char mqtt_device_id[13];
 const char *mqtt_server_hostname = NULL;
 const char *mqtt_server_port = NULL;
 const char *mqtt_username = NULL;
@@ -41,30 +33,42 @@ static char *create_topic(const char *name)
 	return buff;
 }
 
-static int mqtt_params_init()
+#define create_arg_safe(VAR, KN) \
+	VAR = create_arg(KN);        \
+	if (VAR == NULL)             \
+		return RT_EINVAL;
+
+static char *create_arg(const char *KEY_NAME)
+{
+	size_t param_size = get_storage_size(KEY_NAME) + 1;
+	if (param_size == 0)
+	{
+		KPRINTF_COLOR(9, "%s size is 0", KEY_NAME);
+		return NULL;
+	}
+	char *param_stor = malloc(param_size);
+	assert(param_stor != NULL);
+	memset(param_stor, 0, param_size);
+	ef_get_env_blob(KEY_NAME, param_stor, param_size, NULL);
+	return param_stor;
+}
+
+static rt_err_t mqtt_params_init()
 {
 	if (mqtt_base_topic_name != NULL)
-		return 0;
+		return RT_EOK;
 
 	rt_uint8_t mac[6];
 	rt_wlan_get_mac(mac);
 	sprintf(mqtt_device_id, "%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-	size_t device_title_size = get_storage_size(STORE_KEY_MQTT_DEV_TITLE) + 1;
-	assert_not_zero(device_title_size);
-	char device_title[device_title_size];
-	assert(device_title != NULL);
-	ef_get_env_blob(STORE_KEY_MQTT_DEV_TITLE, device_title, device_title_size, NULL);
-	LOG_I("MQTT dev title is: %s", device_title);
+	char *device_title;
+	create_arg_safe(device_title, STORE_KEY_MQTT_DEV_TITLE);
+	KPRINTF_DIM("MQTT device title is: [%s]", device_title);
 
-	size_t server_hostname_size = get_storage_size(STORE_KEY_MQTT_SERVER_URI) + 1;
-	assert_not_zero(server_hostname_size);
-	char *server_hostname = malloc(server_hostname_size);
+	char *server_hostname;
+	create_arg_safe(server_hostname, STORE_KEY_MQTT_SERVER_URI);
 	mqtt_server_hostname = server_hostname;
-	assert(server_hostname != NULL);
-	ef_get_env_blob(STORE_KEY_MQTT_SERVER_URI, server_hostname, server_hostname_size, NULL);
-	LOG_I("MQTT server is: %s", server_hostname);
-
 	char *port = strchr(server_hostname, ':');
 	if (port == NULL)
 		mqtt_server_port = "8883";
@@ -73,22 +77,13 @@ static int mqtt_params_init()
 		*port = '\0';
 		mqtt_server_port = port + 1;
 	}
+	KPRINTF_DIM("MQTT server is: [%s]:[%s]", mqtt_server_hostname, mqtt_server_port);
 
-	size_t username_size = get_storage_size(STORE_KEY_MQTT_USER) + 1;
-	assert_not_zero(username_size);
-	char *username = malloc(username_size);
-	mqtt_username = username;
-	assert(username != NULL);
-	ef_get_env_blob(STORE_KEY_MQTT_USER, username, username_size, NULL);
-	LOG_I("MQTT username is: %s", username);
+	create_arg_safe(mqtt_username, STORE_KEY_MQTT_USER);
+	KPRINTF_DIM("MQTT username is: [%s]", mqtt_username);
 
-	size_t password_size = get_storage_size(STORE_KEY_MQTT_PASS) + 1;
-	assert_not_zero(password_size);
-	char *password = malloc(password_size);
-	mqtt_password = password;
-	assert(password != NULL);
-	ef_get_env_blob(STORE_KEY_MQTT_PASS, password, password_size, NULL);
-	LOG_I("MQTT password is: %s", password);
+	create_arg_safe(mqtt_password, STORE_KEY_MQTT_PASS);
+	KPRINTF_DIM("MQTT password is: [%s]", mqtt_password);
 
 	const size_t base_topic_name_size = 1 + strlen(DEVICE_ROOT_TOPIC) + 1 + strlen(APPLICATION_KIND) + 1 + strlen(device_title) + 2;
 	char *base_topic_name = malloc(base_topic_name_size);
@@ -96,21 +91,23 @@ static int mqtt_params_init()
 	assert(base_topic_name != NULL);
 
 	rt_snprintf(base_topic_name, base_topic_name_size, "/" DEVICE_ROOT_TOPIC "/" APPLICATION_KIND "/%s/", device_title);
-	LOG_I("MQTT endpoint is: %s", base_topic_name);
+	KPRINTF_DIM("MQTT endpoint is: [%s]", base_topic_name);
 
 	mqtt_input_topic_beep = create_topic("set/beep");
 	mqtt_input_topic_relay = create_topic("set/relay");
 	mqtt_input_topic_led = create_topic("set/led");
 	mqtt_output_topic_button = create_topic("get/button");
 
-	return 0;
+	free(device_title);
+
+	return RT_EOK;
 }
 
 int start_mqtt(void)
 {
 	mqtt_log_init();
 
-	if (!mqtt_params_init())
+	if (mqtt_params_init() != RT_EOK)
 		return 1;
 
 	client = mqtt_lease();
@@ -125,10 +122,17 @@ int start_mqtt(void)
 
 	mqtt_set_will_options(client, create_topic("connected"), QOS1, 0, "");
 
-	mqtt_connect(client);
+	int ret = mqtt_connect(client);
+	if (ret != KAWAII_MQTT_SUCCESS_ERROR)
+	{
+		FATAL_ERROR("mqtt connection failed: %d", ret);
+		return ret;
+	}
+
 	mqtt_subscribe(client, mqtt_input_topic_relay, QOS1, mqtt_topic_handler_relay);
 	mqtt_subscribe(client, mqtt_input_topic_beep, QOS0, mqtt_topic_handler_beep);
 	mqtt_subscribe(client, mqtt_input_topic_led, QOS0, mqtt_topic_handler_led);
+	return 0;
 }
 
 int action_publish(enum mqtt_topic topic, const char *send_data)

@@ -1,5 +1,3 @@
-#define DBG_SECTION_NAME "my:netdev"
-
 #include "shell.h"
 #include <gongt/config_tool.h>
 #include <sys/socket.h>
@@ -25,12 +23,12 @@ static char *netdev_status_map[] = {
 
 static void handle_change_status(struct netdev *netdev, enum netdev_cb_type type)
 {
-	KPINTF_COLOR(14, "netdev status changed %s(%d)", netdev_status_map[type], type);
+	KPRINTF_COLOR(14, "netdev status changed %s(%d)", netdev_status_map[type], type);
 	netdev_ifconfig(1, NULL);
 }
 static void handle_change_addr(struct netdev *netdev, enum netdev_cb_type type)
 {
-	KPINTF_COLOR(14, "netdev address changed %s(%d)", netdev_status_map[type], type);
+	KPRINTF_COLOR(14, "netdev address changed %s(%d)", netdev_status_map[type], type);
 	netdev_ifconfig(1, NULL);
 }
 

@@ -7,8 +7,13 @@
 
 #include <finsh.h>
 
-#define RETURN_LOG_E(...)   \
-	{                       \
-		LOG_E(__VA_ARGS__); \
-		return 1;           \
+typedef long (*shell_handler)(int argc, char **argv);
+
+#define RETURN_WITH_ERR(...)             \
+	{                                    \
+		KPRINTF_COLOR(9, ##__VA_ARGS__); \
+		return 1;                        \
 	}
+
+#define FORCE_CAST_SYSCALL(FN) (*((syscall_func)(void *)&FN))
+#define DEFINE_CMD(FN, CMD, DESC) MSH_CMD_EXPORT_ALIAS(FORCE_CAST_SYSCALL(FN), CMD, DESC);
