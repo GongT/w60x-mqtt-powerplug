@@ -12,6 +12,15 @@ static rt_tick_t last_event_time = 0;
 static rt_mailbox_t event_msg_queue;
 static rt_thread_t reduce_thread;
 
+static void queue_publish(const char *msg)
+{
+	static main_event body = {SEND_BUTTON, 0, NULL};
+	body.payload = msg;
+	rt_err_t r = rt_mq_send(main_events, (void *)&body, sizeof(main_event));
+	if (r != RT_EOK)
+		KPRINTF_COLOR(11, "button: rt_mq_send: return %d", r);
+}
+
 rt_bool_t key_is_pressed()
 {
 	return key_press_status;
@@ -57,12 +66,14 @@ __attribute__((noreturn)) static void key_event_reduce_main(void *arg)
 			if (wait_double_click)
 			{
 				wait_double_click = RT_FALSE;
-				KPRINTF_COLOR(9, "todo: single_click");
+				// KPRINTF_COLOR(9, "todo: single_click");
+				queue_publish("single");
 			}
 			else if (wait_long_press)
 			{
 				wait_long_press = RT_FALSE;
-				KPRINTF_COLOR(9, "todo: long_press");
+				// KPRINTF_COLOR(9, "todo: long_press");
+				queue_publish("long");
 			}
 			continue;
 		}
@@ -77,7 +88,8 @@ __attribute__((noreturn)) static void key_event_reduce_main(void *arg)
 			{
 				wait_double_click = RT_FALSE;
 				timeout = RT_WAITING_FOREVER;
-				KPRINTF_COLOR(9, "todo: double_click");
+				// KPRINTF_COLOR(9, "todo: double_click");
+				queue_publish("double");
 			}
 			else
 			{
@@ -107,11 +119,11 @@ void key_press_init()
 	key_press_status = check();
 	if (key_press_status)
 	{
-		KPRINTF_COLOR(11,  "key0 pin (%d) init state is pressed", PIN_KEY);
+		KPRINTF_COLOR(11, "key0 pin (%d) init state is pressed", PIN_KEY);
 	}
 	else
 	{
-		KPRINTF_COLOR(11,  "key0 pin (%d) init state is not pressed", PIN_KEY);
+		KPRINTF_COLOR(11, "key0 pin (%d) init state is not pressed", PIN_KEY);
 	}
 
 	event_msg_queue = rt_mb_create("key_event", 64, RT_IPC_FLAG_FIFO);

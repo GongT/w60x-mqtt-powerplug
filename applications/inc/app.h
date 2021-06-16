@@ -16,11 +16,32 @@ __attribute__((noreturn)) extern void rt_thread_exit();
 #include "storage.h"
 size_t get_storage_size(const char *key);
 
+/* 线程消息 */
+extern rt_mq_t main_events;
+enum main_event_kind
+{
+	SEND_BUTTON = 1,
+	REPORT_RELAY,
+	SET_LED,
+	SET_BEEP,
+	SET_RELAY,
+};
+typedef struct main_event_s
+{
+	enum main_event_kind kind;
+	uint8_t free_payload;
+	const char *payload;
+} main_event;
+
+/* MQTT */
 enum mqtt_topic
 {
 	MQTT_TOPIC_BUTTON_PRESS = 0,
+	MQTT_TOPIC_CONNECT = 1,
+	MQTT_TOPIC_RELAY_STATE = 2,
 };
 int action_publish(enum mqtt_topic type, const char *send_str);
+int action_publish_retained(enum mqtt_topic topic, const char *send_data);
 
 /* 按键 */
 rt_bool_t key_is_pressed();

@@ -24,7 +24,7 @@ static int flash_read(unsigned long from, size_t size)
 	{
 		from += FLASH_BASE_ADDR;
 	}
-	KPRINTF_COLOR(2, "read from %X size %d (end: %X) ...\n", from, size, from + size);
+	KPRINTF_COLOR(2, "read from %lX size %d (end: %lX) ...\n", from, size, from + size);
 	if (size == 0 || size > 1024)
 	{
 		KPRINTF_COLOR(9, "can not read %d bytes, allow 0~1024 bytes\n", size);
@@ -57,7 +57,7 @@ static int flash_erase(unsigned long from, size_t size)
 {
 	if (from % INSIDE_FLS_SECTOR_SIZE != 0)
 	{
-		KPRINTF_COLOR(9, "can not erase at 0x%X, not align %d\n", from, INSIDE_FLS_SECTOR_SIZE);
+		KPRINTF_COLOR(9, "can not erase at 0x%lX, not align %lu\n", from, INSIDE_FLS_SECTOR_SIZE);
 		return RT_EINVAL;
 	}
 	unsigned int sec = from / INSIDE_FLS_SECTOR_SIZE;

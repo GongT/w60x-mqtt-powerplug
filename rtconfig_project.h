@@ -13,3 +13,5 @@
 #define MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED -0xFF00
 #define MBEDTLS_CONFIG_FILE "mbedtls_config.h"
 #define rt_hwcrypto_dev_dufault rt_hwcrypto_dev_default
+#define KAWAII_MQTT_LOG_TAR 1U
+#define BOOT_CLEAR_SCREEN

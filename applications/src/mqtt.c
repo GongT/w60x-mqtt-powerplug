@@ -8,6 +8,9 @@
 
 #include <easyflash.h>
 #include <mqttclient.h>
+#ifdef KAWAII_MQTT_NETWORK_TYPE_TLS
+// #include <tls_certificate.h>
+#endif // KAWAII_MQTT_NETWORK_TYPE_TLS
 
 mqtt_client_t *client = NULL;
 #define DEVICE_ROOT_TOPIC "$devices"
@@ -23,6 +26,8 @@ const char *mqtt_input_topic_beep;
 const char *mqtt_input_topic_relay;
 const char *mqtt_input_topic_led;
 const char *mqtt_output_topic_button;
+const char *mqtt_output_topic_relay;
+const char *mqtt_output_topic_connected;
 
 static char *create_topic(const char *name)
 {
@@ -85,18 +90,20 @@ static rt_err_t mqtt_params_init()
 	create_arg_safe(mqtt_password, STORE_KEY_MQTT_PASS);
 	KPRINTF_DIM("MQTT password is: [%s]", mqtt_password);
 
-	const size_t base_topic_name_size = 1 + strlen(DEVICE_ROOT_TOPIC) + 1 + strlen(APPLICATION_KIND) + 1 + strlen(device_title) + 2;
+	const size_t base_topic_name_size = strlen(DEVICE_ROOT_TOPIC) + 1 + strlen(APPLICATION_KIND) + 1 + strlen(device_title) + 2;
 	char *base_topic_name = malloc(base_topic_name_size);
 	mqtt_base_topic_name = base_topic_name;
 	assert(base_topic_name != NULL);
 
-	rt_snprintf(base_topic_name, base_topic_name_size, "/" DEVICE_ROOT_TOPIC "/" APPLICATION_KIND "/%s/", device_title);
+	rt_snprintf(base_topic_name, base_topic_name_size, DEVICE_ROOT_TOPIC "/" APPLICATION_KIND "/%s/", device_title);
 	KPRINTF_DIM("MQTT endpoint is: [%s]", base_topic_name);
 
-	mqtt_input_topic_beep = create_topic("set/beep");
-	mqtt_input_topic_relay = create_topic("set/relay");
-	mqtt_input_topic_led = create_topic("set/led");
-	mqtt_output_topic_button = create_topic("get/button");
+	mqtt_input_topic_beep = create_topic("beep");
+	mqtt_input_topic_relay = create_topic("relay");
+	mqtt_input_topic_led = create_topic("led");
+	mqtt_output_topic_relay = create_topic("$relay");
+	mqtt_output_topic_connected = create_topic("connected");
+	mqtt_output_topic_button = create_topic("button");
 
 	free(device_title);
 
@@ -119,8 +126,12 @@ int start_mqtt(void)
 	mqtt_set_client_id(client, (char *)mqtt_device_id);
 	mqtt_set_will_flag(client, 1);
 	mqtt_set_keep_alive_interval(client, 30);
+#ifdef KAWAII_MQTT_NETWORK_TYPE_TLS
+	mqtt_set_ca(client, mbedtls_root_certificate);
+#endif
+	mqtt_set_clean_session(client, 1);
 
-	mqtt_set_will_options(client, create_topic("connected"), QOS1, 0, "");
+	mqtt_set_will_options(client, mqtt_output_topic_connected, QOS1, 1, "no");
 
 	int ret = mqtt_connect(client);
 	if (ret != KAWAII_MQTT_SUCCESS_ERROR)
@@ -132,10 +143,14 @@ int start_mqtt(void)
 	mqtt_subscribe(client, mqtt_input_topic_relay, QOS1, mqtt_topic_handler_relay);
 	mqtt_subscribe(client, mqtt_input_topic_beep, QOS0, mqtt_topic_handler_beep);
 	mqtt_subscribe(client, mqtt_input_topic_led, QOS0, mqtt_topic_handler_led);
+
+	// TODO: auto update
+
+	action_publish_retained(MQTT_TOPIC_CONNECT, "yes");
 	return 0;
 }
 
-int action_publish(enum mqtt_topic topic, const char *send_data)
+static int _action_publish(enum mqtt_topic topic, const char *send_data, uint8_t retained)
 {
 	mqtt_message_t msg;
 	memset(&msg, 0, sizeof(msg));
@@ -143,6 +158,7 @@ int action_publish(enum mqtt_topic topic, const char *send_data)
 	msg.qos = 1;
 	msg.payload = (void *)send_data;
 	msg.payloadlen = strlen(send_data);
+	msg.retained = retained;
 
 	const char *topic_str;
 	switch (topic)
@@ -150,7 +166,28 @@ int action_publish(enum mqtt_topic topic, const char *send_data)
 	case MQTT_TOPIC_BUTTON_PRESS:
 		topic_str = mqtt_output_topic_button;
 		break;
+	case MQTT_TOPIC_CONNECT:
+		topic_str = mqtt_output_topic_connected;
+		break;
+	default:
+		return -1;
 	}
 
-	return mqtt_publish(client, topic_str, &msg);
+	int r = mqtt_publish(client, topic_str, &msg);
+
+	if (r == 0)
+		KPRINTF_DIM("publish topic: %s = %s | ok", topic_str, send_data);
+	else
+		KPRINTF_COLOR(11, "publish topic: %s = %s | return %d", topic_str, send_data, r);
+
+	return r;
+}
+
+int action_publish(enum mqtt_topic topic, const char *send_data)
+{
+	return _action_publish(topic, send_data, 0);
+}
+int action_publish_retained(enum mqtt_topic topic, const char *send_data)
+{
+	return _action_publish(topic, send_data, 1);
 }

@@ -30,7 +30,7 @@ static void buzzer_play(uint16_t toneHz, uint8_t volumePercent)
 #if BEEP_INVERT
 	pulse = period - pulse;
 #endif
-	KPRINTF_DIM("%dHz, %d%% ::: period=%d, pulse=%d", toneHz, volumePercent, period, pulse);
+	KPRINTF_DIM("%dHz, %d%% ::: period=%lu, pulse=%lu", toneHz, volumePercent, period, pulse);
 	assert0(rt_pwm_set(pwm_dev, PWM_CH_BEEP, period, pulse));
 }
 

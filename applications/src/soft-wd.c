@@ -22,7 +22,7 @@ static void handle_task_kill(void *args)
 	KPRINTF_COLOR(9, "some thread delay");
 
 #ifdef RT_USING_FINSH
-	outputs("=================================\n");
+	puts("=================================\n");
 	list_thread();
 	list_device();
 	list_mutex();
@@ -32,7 +32,7 @@ static void handle_task_kill(void *args)
 	list_mailbox();
 	list_event();
 	list_sem();
-	outputs("=================================\n");
+	puts("=================================\n");
 #endif
 }
 

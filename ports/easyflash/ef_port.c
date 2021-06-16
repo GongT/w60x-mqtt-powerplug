@@ -41,26 +41,26 @@ void ef_log_debug(const char *file, const long line, const char *format, ...)
 {
 	va_list args;
 
-	outputf("[Flash] (%s:%ld) ", file, line);
+	printf("[Flash] (%s:%ld) ", file, line);
 
 	va_start(args, format);
 	rt_vsnprintf(shared_log_buffer, RT_CONSOLEBUF_SIZE, format, args);
 	va_end(args);
 
-	outputs(shared_log_buffer);
+	puts(shared_log_buffer);
 }
 
 void ef_log_info(const char *format, ...)
 {
 	va_list args;
 
-	outputs("[Flash] ");
+	puts("[Flash] ");
 
 	va_start(args, format);
 	rt_vsnprintf(shared_log_buffer, RT_CONSOLEBUF_SIZE, format, args);
 	va_end(args);
 
-	outputs(shared_log_buffer);
+	puts(shared_log_buffer);
 }
 
 void ef_print(const char *format, ...)
@@ -71,5 +71,5 @@ void ef_print(const char *format, ...)
 	rt_vsnprintf(shared_log_buffer, RT_CONSOLEBUF_SIZE, format, args);
 	va_end(args);
 
-	outputs(shared_log_buffer);
+	puts(shared_log_buffer);
 }

@@ -31,7 +31,7 @@ static void pwm_set(uint ch, uint8_t percent)
 {
 	rt_err_t ret = rt_pwm_set(pwm_dev, ch, 1000000, (1000000 - 100 * percent * percent));
 	if (ret != RT_EOK)
-		KPRINTF_COLOR(11,  "rt_pwm_set(pwm_dev, %d, %ld, %ld): return %d", ch, 1000000, (1000000 - 100 * percent * percent), ret);
+		KPRINTF_COLOR(11,  "rt_pwm_set(pwm_dev, %d, %d, %d): return %ld", ch, 1000000, (1000000 - 100 * percent * percent), ret);
 }
 
 static void enable_thread(led_status_base_t element)
@@ -81,7 +81,7 @@ void led_blink(enum led_id id, uint32_t cycle)
 
 void led_fade(enum led_id id, uint32_t cycle)
 {
-	KPRINTF_DIM("%s fade: %d", title(id), cycle);
+	KPRINTF_DIM("%s fade: %lu", title(id), cycle);
 	disable_thread(&blinking_status[id].thread);
 	fading_status[id].current = 0;
 	fading_status[id].direction = 0;

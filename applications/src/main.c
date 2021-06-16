@@ -7,6 +7,12 @@
 #include "init.h"
 #include <gongt/config_tool.h>
 
+#ifdef PKG_USING_MBEDTLS
+#include <mbedtls/ssl.h>
+#endif
+
+rt_mq_t main_events = NULL;
+extern time_t ntp_sync_to_rtc(const char *host_name);
 static rt_thread_t real_main_thread = NULL;
 
 static void switch_priority()
@@ -21,11 +27,48 @@ static void app_main()
 	if (connect_wifi() != 0)
 		goto_config_mode_and_quit();
 
+	time_t t = time(NULL);
+	while (t == 0)
+	{
+		KPRINTF_COLOR(6, "ntp_sync_to_rtc()");
+		t = ntp_sync_to_rtc(NULL);
+		KPRINTF_COLOR(6, "  -> %ld\n", t);
+		rt_thread_mdelay(1000);
+	}
+
+#ifdef PKG_USING_MBEDTLS
+	mbedtls_debug_set_threshold(4);
+#endif
+
 	KPRINTF_COLOR(6, "start_mqtt()");
 	if (start_mqtt() != 0)
 		FATAL_ERROR("failed start mqtt");
 
-	KPRINTF_COLOR(11, "app main thread done.");
+	main_events = rt_mq_create("main", sizeof(main_event), 5, RT_IPC_FLAG_FIFO);
+	main_event recv_buff;
+	while (1)
+	{
+		rt_mq_recv(main_events, (void *)&recv_buff, sizeof(main_event), RT_WAITING_FOREVER);
+		switch (recv_buff.kind)
+		{
+		case SEND_BUTTON:
+			action_publish(MQTT_TOPIC_BUTTON_PRESS, recv_buff.payload);
+			break;
+		case REPORT_RELAY:
+			action_publish_retained(MQTT_TOPIC_RELAY_STATE, recv_buff.payload);
+			break;
+		case SET_LED:
+			break;
+		case SET_BEEP:
+			break;
+		case SET_RELAY:
+if(strcmp(recv_buff.)
+			break;
+		}
+		if (recv_buff.free_payload)
+			free((void *)recv_buff.payload);
+	}
+	// KPRINTF_COLOR(11, "app main thread done.");
 }
 
 int main(void)

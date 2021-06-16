@@ -7,8 +7,6 @@
 #include <rthw.h>
 #include <ulog.h>
 
-extern void list_thread();
-
 char shared_log_buffer[RT_CONSOLEBUF_SIZE];
 
 static void shutdown()
@@ -39,7 +37,7 @@ __attribute__((noreturn)) void thread_suspend()
 	// #ifdef RT_USING_FINSH
 	// 	rt_thread_mdelay(1000);
 	// 	list_thread();
-	// 	outputs("\n");
+	// 	puts("\n");
 	// #endif
 
 	rt_thread_suspend(self);
@@ -74,21 +72,6 @@ __attribute__((noreturn)) static void reboot()
 	rt_hw_cpu_reset();
 #endif
 }
-static void show_context()
-{
-	SET_COLOR(7);
-	rt_thread_t self = rt_thread_self();
-	if (self == RT_NULL)
-		outputs(" * thread context: no.\n");
-	else
-		outputf(" * thread context: [%d] %.*s.\n", self->stat, RT_NAME_MAX, self->name);
-#ifdef RT_USING_FINSH
-	outputs("=================================\n");
-	list_thread();
-	outputs("=================================\n");
-#endif
-	RESET_COLOR();
-}
 
 __attribute__((noreturn)) void __FATAL_ERROR(const char *file, const char *fn, int lineno, const char *const MSG, ...)
 {
@@ -98,11 +81,10 @@ __attribute__((noreturn)) void __FATAL_ERROR(const char *file, const char *fn, i
 	va_end(argptr);
 
 	SET_COLOR(9);
-	outputf("\r[FATAL_ERROR] @ %s + ", fn);
-	outputs(file);
-	outputf(":%d\n", lineno);
-	outputs(shared_log_buffer);
-	outputs("\n");
+	printf("\r[FATAL_ERROR] @ %s + ", fn);
+	printf(file);
+	printf(":%d\n", lineno);
+	puts(shared_log_buffer);
 	RESET_COLOR();
 
 	show_context();
@@ -122,11 +104,10 @@ __attribute__((noreturn)) void __PHYSICAL_ERROR(const char *file, const char *fn
 	va_end(argptr);
 
 	SET_COLOR(9);
-	outputf("\r[PHYSICAL_ERROR] @ %s + ", fn);
-	outputs(file);
-	outputf(":%d\n", lineno);
-	outputs(shared_log_buffer);
-	outputs("\n");
+	printf("\r[PHYSICAL_ERROR] @ %s + ", fn);
+	printf(file);
+	printf(":%d\n", lineno);
+	puts(shared_log_buffer);
 
 	show_context();
 
@@ -155,13 +136,3 @@ static int set_assert()
 	return 0;
 }
 INIT_BOARD_EXPORT(set_assert);
-
-void __wrap_rt_show_version();
-void __real_rt_show_version();
-
-void __wrap_rt_show_version()
-{
-	rt_kputs("\r\x1B"
-			 "c");
-	__real_rt_show_version();
-}
