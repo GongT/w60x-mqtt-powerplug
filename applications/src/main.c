@@ -11,7 +11,6 @@
 #include <mbedtls/ssl.h>
 #endif
 
-rt_mq_t main_events = NULL;
 extern time_t ntp_sync_to_rtc(const char *host_name);
 static rt_thread_t real_main_thread = NULL;
 
@@ -23,17 +22,26 @@ static void switch_priority()
 
 static void app_main()
 {
+	if (get_storage_size(STORE_KEY_MQTT_DEV_TITLE) == 0)
+		goto_config_mode_and_quit();
+
+	led_blink(LED_GREEN, 1000);
+	rt_thread_mdelay(500);
+	led_blink(LED_RED, 1000);
+
 	KPRINTF_COLOR(6, "connect_wifi()");
 	if (connect_wifi() != 0)
 		goto_config_mode_and_quit();
 
-	time_t t = time(NULL);
-	while (t == 0)
+	while (1)
 	{
 		KPRINTF_COLOR(6, "ntp_sync_to_rtc()");
-		t = ntp_sync_to_rtc(NULL);
+		time_t t = ntp_sync_to_rtc(NULL);
 		KPRINTF_COLOR(6, "  -> %ld\n", t);
-		rt_thread_mdelay(1000);
+		if (t == 0)
+			rt_thread_mdelay(1000);
+		else
+			break;
 	}
 
 #ifdef PKG_USING_MBEDTLS
@@ -44,31 +52,11 @@ static void app_main()
 	if (start_mqtt() != 0)
 		FATAL_ERROR("failed start mqtt");
 
-	main_events = rt_mq_create("main", sizeof(main_event), 5, RT_IPC_FLAG_FIFO);
-	main_event recv_buff;
-	while (1)
-	{
-		rt_mq_recv(main_events, (void *)&recv_buff, sizeof(main_event), RT_WAITING_FOREVER);
-		switch (recv_buff.kind)
-		{
-		case SEND_BUTTON:
-			action_publish(MQTT_TOPIC_BUTTON_PRESS, recv_buff.payload);
-			break;
-		case REPORT_RELAY:
-			action_publish_retained(MQTT_TOPIC_RELAY_STATE, recv_buff.payload);
-			break;
-		case SET_LED:
-			break;
-		case SET_BEEP:
-			break;
-		case SET_RELAY:
-if(strcmp(recv_buff.)
-			break;
-		}
-		if (recv_buff.free_payload)
-			free((void *)recv_buff.payload);
-	}
-	// KPRINTF_COLOR(11, "app main thread done.");
+	led_off(LED_GREEN);
+	led_off(LED_RED);
+
+	init_wifi_alert();
+	start_main_event_loop();
 }
 
 int main(void)
@@ -98,6 +86,12 @@ int main(void)
 		char bt[bt_size];
 		ef_get_env_blob("boot_times", bt, bt_size, NULL);
 		rt_kprintf("Boot Times (size=%d): %.*s\n", bt_size, bt_size, bt);
+	}
+
+	if (is_update_mode())
+	{
+		goto_update_mode_and_quit();
+		return 0;
 	}
 
 	if (key_is_pressed())

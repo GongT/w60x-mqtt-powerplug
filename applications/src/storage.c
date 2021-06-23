@@ -58,3 +58,24 @@ void test_env(void)
 
 	ef_print_env();
 }
+
+rt_bool_t is_update_mode()
+{
+	char c_update_mode[2] = "0";
+	int i_update_mode = 0;
+	if (ef_get_env_blob("update_mode", c_update_mode, sizeof c_update_mode, NULL) == 0)
+	{
+		return RT_FALSE;
+	}
+
+	i_update_mode = atol(c_update_mode);
+	if (i_update_mode)
+	{
+		ef_set_and_save_env("update_mode", "0");
+	}
+	return i_update_mode ? RT_TRUE : RT_FALSE;
+}
+void set_update_mode()
+{
+	ef_set_and_save_env("update_mode", "1");
+}

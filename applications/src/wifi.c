@@ -69,9 +69,6 @@ int connect_wifi()
 	assert(netdev_dhcp_enabled(dev, RT_TRUE) == 0);
 
 	KPRINTF_COLOR(14, "Connect WiFi: %.*s | %.*s", wifi_name_size, wifi_name, wifi_pass_size, wifi_pass);
-	led_blink(LED_GREEN, 1000);
-	rt_thread_mdelay(500);
-	led_blink(LED_RED, 1000);
 
 	while (1)
 	{
@@ -100,9 +97,6 @@ int connect_wifi()
 	}
 
 	wifi_status_dump();
-
-	led_off(LED_GREEN);
-	led_off(LED_RED);
 
 	return 0;
 }

@@ -7,6 +7,7 @@
 
 #include <rtthread.h>
 #include <rtdevice.h>
+#include <rthw.h>
 
 #include <rt-thread-w60x/internal-flash.h>
 
@@ -15,23 +16,20 @@ __attribute__((noreturn)) extern void rt_thread_exit();
 /* 存储 */
 #include "storage.h"
 size_t get_storage_size(const char *key);
+rt_bool_t is_update_mode();
+void set_update_mode();
 
 /* 线程消息 */
-extern rt_mq_t main_events;
+__attribute__((noreturn)) void start_main_event_loop();
 enum main_event_kind
 {
 	SEND_BUTTON = 1,
 	REPORT_RELAY,
-	SET_LED,
-	SET_BEEP,
-	SET_RELAY,
+	// SET_LED,
+	// SET_BEEP,
+	// SET_RELAY,
 };
-typedef struct main_event_s
-{
-	enum main_event_kind kind;
-	uint8_t free_payload;
-	const char *payload;
-} main_event;
+void main_event_queue(enum main_event_kind kind, const char *body, rt_bool_t copy_mem);
 
 /* MQTT */
 enum mqtt_topic
@@ -85,7 +83,10 @@ void led_on(enum led_id id);
 void alert_config_start();
 void alert_config_end();
 void alert_config_fail();
+
 enum CONFIG_STATUS goto_config_mode_with_alert();
 __attribute__((noreturn)) void goto_config_mode_and_quit();
+
+__attribute__((noreturn)) void goto_update_mode_and_quit();
 
 /* wifi */

@@ -21,3 +21,12 @@ static long goto_config_mode_shell(int argc, char **argv)
 	return 0;
 }
 DEFINE_CMD(goto_config_mode_shell, config, start WiFi config mode);
+
+static long goto_update_mode_shell(int argc, char **argv)
+{
+	set_update_mode();
+	rt_thread_mdelay(100);
+	rt_hw_cpu_reset();
+	return 0;
+}
+DEFINE_CMD(goto_update_mode_shell, update, start WiFi update mode);

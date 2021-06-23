@@ -25,6 +25,7 @@ const char *mqtt_password = NULL;
 const char *mqtt_input_topic_beep;
 const char *mqtt_input_topic_relay;
 const char *mqtt_input_topic_led;
+const char *mqtt_input_topic_update;
 const char *mqtt_output_topic_button;
 const char *mqtt_output_topic_relay;
 const char *mqtt_output_topic_connected;
@@ -144,7 +145,7 @@ int start_mqtt(void)
 	mqtt_subscribe(client, mqtt_input_topic_beep, QOS0, mqtt_topic_handler_beep);
 	mqtt_subscribe(client, mqtt_input_topic_led, QOS0, mqtt_topic_handler_led);
 
-	// TODO: auto update
+	mqtt_subscribe(client, mqtt_input_topic_update, QOS0, mqtt_topic_handler_upgrade);
 
 	action_publish_retained(MQTT_TOPIC_CONNECT, "yes");
 	return 0;
@@ -166,10 +167,14 @@ static int _action_publish(enum mqtt_topic topic, const char *send_data, uint8_t
 	case MQTT_TOPIC_BUTTON_PRESS:
 		topic_str = mqtt_output_topic_button;
 		break;
+	case MQTT_TOPIC_RELAY_STATE:
+		topic_str = mqtt_output_topic_relay;
+		break;
 	case MQTT_TOPIC_CONNECT:
 		topic_str = mqtt_output_topic_connected;
 		break;
 	default:
+		KPRINTF_COLOR(9, "action_publish() missing some switch branch!");
 		return -1;
 	}
 

@@ -90,8 +90,8 @@ __attribute__((noreturn)) void __FATAL_ERROR(const char *file, const char *fn, i
 	show_context();
 
 	beep_error();
-	led_on(LED_GREEN);
-	led_on(LED_RED);
+	led_off(LED_GREEN);
+	led_blink(LED_RED, 300);
 
 	reboot();
 }
