@@ -118,5 +118,5 @@ jobs:
       - name: Copy to My Server
         # ${{ secrets.DEPLOY_SERVER }}
         run: |
-          ssh -o StrictHostKeyChecking=no router.home.gongt.me -p 12121 mkdir -p /data/AppData/data/iot-config/plug/
+          ssh -v -o StrictHostKeyChecking=no router.home.gongt.me -p 12121 mkdir -p /data/AppData/data/iot-config/plug/
           scp -P 12121 application.img router.home.gongt.me:/data/AppData/data/iot-config/plug/
