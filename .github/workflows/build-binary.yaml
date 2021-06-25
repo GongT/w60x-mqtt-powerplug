@@ -21,6 +21,8 @@ jobs:
   build:
     name: "build application binary"
     runs-on: ubuntu-latest
+    env:
+      GCC_VERSION: 10-2020-q4
     steps:
       - name: Install Arm GCC
         uses: actions/checkout@v2
@@ -43,10 +45,21 @@ jobs:
           pip install SCons
           pip install -r rt-thread-w60x/requirements.txt
 
+      - name: Cache Arm GCC
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-arm-gcc
+        with:
+          path: |
+            ${{env.RTT_EXEC_PATH}}
+          key: packages-${{ env.GCC_VERSION }}
+          restore-keys: |
+            packages-${{ env.GCC_VERSION }}
+
       - name: Install Arm GCC
         uses: fiam/arm-none-eabi-gcc@v1
         with:
-          release: 10-2020-q4 # The arm-none-eabi-gcc release to use.
+          release: ${{ env.GCC_VERSION }} # The arm-none-eabi-gcc release to use.
           directory: ${{env.RTT_EXEC_PATH}}
 
       - name: Cache build objects
@@ -63,7 +76,7 @@ jobs:
             packages-
 
       - name: Clone RT-Thread sources
-        run: python control.py rtt update --github
+        run: python control.py rtt update lts-v3.1.x --github
       - name: Get RTT packages
         run: python control.py pkgs --force-update
 
