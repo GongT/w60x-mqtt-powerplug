@@ -46,6 +46,7 @@ jobs:
           pip install -r rt-thread-w60x/requirements.txt
 
       - name: Cache Arm GCC
+        id: gcc-cache
         uses: actions/cache@v2
         env:
           cache-name: cache-arm-gcc
@@ -56,7 +57,7 @@ jobs:
 
       - name: Install Arm GCC
         uses: fiam/arm-none-eabi-gcc@v1
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.gcc-cache.outputs.cache-hit != 'true'
         with:
           release: ${{ env.GCC_VERSION }} # The arm-none-eabi-gcc release to use.
           directory: ${{env.RTT_EXEC_PATH}}
@@ -109,6 +110,7 @@ jobs:
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
+          set -x
           TMP_SOCK=$(mktemp --dry-run)
           echo "SSH_AUTH_SOCK=$TMP_SOCK" >> $GITHUB_ENV
           ssh-agent -a $TMP_SOCK > /dev/null
