@@ -61,7 +61,7 @@ jobs:
           release: ${{ env.GCC_VERSION }} # The arm-none-eabi-gcc release to use.
           directory: ${{env.RTT_EXEC_PATH}}
 
-      - name: Cache build objects
+      - name: Cache packages
         uses: actions/cache@v2
         env:
           cache-name: cache-node-modules
@@ -109,7 +109,7 @@ jobs:
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
-          TMP_SOCK=$(mktemp)
+          TMP_SOCK=$(mktemp --dry-run)
           echo "SSH_AUTH_SOCK=$TMP_SOCK" >> $GITHUB_ENV
           ssh-agent -a $TMP_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
