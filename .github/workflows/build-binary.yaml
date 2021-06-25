@@ -80,6 +80,7 @@ jobs:
   publish:
     name: publish to my host
     runs-on: [self-hosted, linux]
+    needs: [build]
     steps:
       - name: Download assets
         uses: dsaltares/fetch-gh-release-asset@master
