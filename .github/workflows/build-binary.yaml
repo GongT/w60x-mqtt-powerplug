@@ -1,0 +1,93 @@
+name: "build-binary"
+on:
+  push:
+    branches:
+      - master
+env:
+  RTT_EXEC_PATH: "/opt/arm/gcc"
+  RTT_ROOT: "/opt/rt-thread"
+  BUILD_ENV: "production"
+  GCC_OPT: "s"
+
+jobs:
+  cancel:
+    name: Cancel Previous Runs
+    runs-on: ubuntu-latest
+    steps:
+      - name: cancel running workflows
+        uses: GongT/cancel-previous-workflows@6dd7af8389c9434cc893fd33b58609e73db49fbe
+        env:
+          DELETE: "yes"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build:
+    name: "build application binary"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Arm GCC
+        uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+          clean: true
+      - name: remove .vscode
+        run: |
+          rm -rf .vscode
+          mkdir .vscode
+
+      - name: Install Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+          architecture: "x64"
+      - name: Install SCons
+        run: pip install SCons
+
+      - name: Install Arm GCC
+        uses: fiam/arm-none-eabi-gcc@v1
+        with:
+          release: 10-2020-q4-major # The arm-none-eabi-gcc release to use.
+          directory: ${{env.RTT_EXEC_PATH}}
+
+      - name: Cache build objects
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: |
+            packages
+          key: packages-${{ hashFiles('.config') }}
+          restore-keys: |
+            packages-${{ hashFiles('.config') }}
+            packages-
+
+      - name: Clone RT-Thread sources
+        run: python control.py rtt update
+      - name: Get RTT packages
+        run: python control.py pkgs --force-update
+
+      - name: Build
+        run: python control.py scons
+
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "Latest Build"
+          files: |
+            Bin/application.fls
+            Bin/application.img
+
+  publish:
+    name: publish to my host
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Download assets
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          version: "latest"
+          file: "application.img"
+          target: "AppData/data/iot-config/plug/application.img"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy to My Server
+        run: scp -r AppData/data/iot-config/plug/application.img /data

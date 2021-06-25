@@ -12,6 +12,10 @@ trim_trailing_whitespace = true
 [*.py]
 indent_style = space
 
+[*.yaml]
+indent_style = space
+indent_size = 2
+
 [SConstruct]
 indent_style = space
 
