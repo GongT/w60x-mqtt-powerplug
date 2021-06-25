@@ -107,15 +107,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup SSH Keys and known_hosts
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           set -x
-          TMP_SOCK=$(mktemp --dry-run)
-          echo "SSH_AUTH_SOCK=$TMP_SOCK" >> $GITHUB_ENV
-          ssh-agent -a $TMP_SOCK > /dev/null
+          export SSH_AUTH_SOCK=$(mktemp --dry-run)
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
-          echo "::add-mask::$TMP_SOCK"
+          echo "::add-mask::$SSH_AUTH_SOCK"
 
       - name: Copy to My Server
         run: rsync AppData/data/iot-config/plug/application.img ${{ secrets.DEPLOY_SERVER }}/data
