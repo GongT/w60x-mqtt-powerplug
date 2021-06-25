@@ -81,7 +81,7 @@ jobs:
 
   publish:
     name: publish to my host
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     needs: [build]
     steps:
       - name: Download assets
@@ -91,6 +91,16 @@ jobs:
           file: "application.img"
           target: "AppData/data/iot-config/plug/application.img"
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup SSH Keys and known_hosts
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          TMP_SOCK=$(mktemp)
+          echo "SSH_AUTH_SOCK=$TMP_SOCK" >> $GITHUB_ENV
+          ssh-agent -a $TMP_SOCK > /dev/null
+          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+          echo "::add-mask::$TMP_SOCK"
 
       - name: Copy to My Server
         run: scp -r AppData/data/iot-config/plug/application.img /data
