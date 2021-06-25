@@ -75,7 +75,7 @@ jobs:
             packages-
 
       - name: Clone RT-Thread sources
-        run: python control.py rtt update lts-v3.1.x --github
+        run: python control.py rtt update tags/v4.0.3 --github
       - name: Get RTT packages
         run: python control.py pkgs --force-update
 
