@@ -44,7 +44,7 @@ jobs:
       - name: Install Arm GCC
         uses: fiam/arm-none-eabi-gcc@v1
         with:
-          release: 10-2020-q4-major # The arm-none-eabi-gcc release to use.
+          release: 10-2020-q4 # The arm-none-eabi-gcc release to use.
           directory: ${{env.RTT_EXEC_PATH}}
 
       - name: Cache build objects
