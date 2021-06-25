@@ -103,7 +103,7 @@ jobs:
         with:
           version: "latest"
           file: "application.img"
-          target: "AppData/data/iot-config/plug/application.img"
+          target: "application.img"
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup SSH Keys and known_hosts
@@ -116,4 +116,7 @@ jobs:
           echo "::add-mask::$SSH_AUTH_SOCK"
 
       - name: Copy to My Server
-        run: rsync AppData/data/iot-config/plug/application.img ${{ secrets.DEPLOY_SERVER }}/data
+        # ${{ secrets.DEPLOY_SERVER }}
+        run: |
+          ssh router.home.gongt.me -p 12121 mkdir -p /data/AppData/data/iot-config/plug/
+          scp -P 12121 application.img router.home.gongt.me:/data/AppData/data/iot-config/plug/
