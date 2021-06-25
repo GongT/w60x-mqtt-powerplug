@@ -108,15 +108,19 @@ jobs:
 
       - name: Setup SSH Keys and known_hosts
         run: |
-          set -x
           export SSH_AUTH_SOCK=$(mktemp --dry-run)
+          echo "::add-mask::$SSH_AUTH_SOCK"
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
-          echo "::add-mask::$SSH_AUTH_SOCK"
+
+          export SSH_CONFIG_FILE=$(mktemp --dry-run)
+          echo "${{ secrets.DEPLOY_SSH_CONFIG }}" > "$SSH_CONFIG_FILE"
+          echo "SSH_CONFIG_FILE=$SSH_CONFIG_FILE" >> $GITHUB_ENV
+          chmod 0600 "$SSH_CONFIG_FILE"
 
       - name: Copy to My Server
-        # ${{ secrets.DEPLOY_SERVER }}
+        # ${{ secrets.DEPLOY_CONFIG }}
         run: |
-          ssh -v -o StrictHostKeyChecking=no router.home.gongt.me -p 12121 mkdir -p /data/AppData/data/iot-config/plug/
-          scp -P 12121 application.img router.home.gongt.me:/data/AppData/data/iot-config/plug/
+          ssh -F $SSH_CONFIG_FILE target mkdir -p /data/AppData/data/iot-config/plug/
+          scp -F $SSH_CONFIG_FILE application.img target:/data/AppData/data/iot-config/plug/

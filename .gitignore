@@ -15,3 +15,4 @@ packages/
 .vscode/compile_commands.json
 /rt-thread
 .ropeproject
+/test.conf
