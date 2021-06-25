@@ -38,8 +38,10 @@ jobs:
         with:
           python-version: "3.x"
           architecture: "x64"
-      - name: Install SCons
-        run: pip install SCons
+      - name: Install SCons and build dependencies
+        run: |
+          pip install SCons
+          pip install -r rt-thread-w60x/requirements.txt
 
       - name: Install Arm GCC
         uses: fiam/arm-none-eabi-gcc@v1
