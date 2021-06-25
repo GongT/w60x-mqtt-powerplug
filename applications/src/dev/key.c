@@ -29,7 +29,7 @@ static void key_handler(void *args)
 		return;
 	key_press_status = new_status;
 
-	rt_tick_t this_time = rt_tick_get_millisecond(rt_tick_get());
+	rt_tick_t this_time = rt_tick_get_millisecond();
 	rt_tick_t delta = this_time - last_event_time;
 	last_event_time = this_time;
 
