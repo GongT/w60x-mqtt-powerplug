@@ -63,7 +63,7 @@ jobs:
             packages-
 
       - name: Clone RT-Thread sources
-        run: python control.py rtt update
+        run: python control.py rtt update --github
       - name: Get RTT packages
         run: python control.py pkgs --force-update
 
