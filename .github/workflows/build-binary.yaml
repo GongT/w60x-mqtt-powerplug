@@ -81,7 +81,10 @@ jobs:
         run: python control.py pkgs --force-update
 
       - name: Build
-        run: python control.py scons
+        run: |
+          echo "" >> rtconfig_project.h
+          echo "#undef RT_USING_FINSH" >> rtconfig_project.h
+          python control.py scons
 
       - uses: marvinpinto/action-automatic-releases@latest
         with:

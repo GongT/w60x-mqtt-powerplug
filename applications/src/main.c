@@ -97,7 +97,9 @@ int main(void)
 	if (key_is_pressed())
 	{
 		KPRINTF_COLOR(14, "release in 1s exit main.");
-		buzzer_beep(1000, 5, 10);
+		buzzer_beep(200, 5, 10);
+		led_static(LED_RED, 50);
+		led_off(LED_GREEN);
 		rt_thread_mdelay(1000);
 
 		if (key_is_pressed())
