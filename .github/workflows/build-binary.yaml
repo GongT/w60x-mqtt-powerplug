@@ -121,5 +121,5 @@ jobs:
 
       - name: Copy to My Server
         run: |
-          ssh -F $SSH_CONFIG_FILE target mkdir -p /data/AppData/data/iot-config/plug/
-          scp -F $SSH_CONFIG_FILE application.img target:/data/AppData/data/iot-config/plug/
+          ssh -F $SSH_CONFIG_FILE target mkdir -p /data/AppData/data/iot/plug/
+          scp -F $SSH_CONFIG_FILE application.img target:/data/AppData/data/iot/plug/
