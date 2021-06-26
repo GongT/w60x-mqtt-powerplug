@@ -2,7 +2,7 @@
 
 void relay_set(enum relay_state_t on)
 {
-	KPRINTF_DIM("relay: %d", on);
+	_DEV_DEBUG("relay: %d", on);
 	rt_pin_write(PIN_RELAY, on);
 	main_event_queue(REPORT_RELAY, on ? "ON" : "OFF", RT_FALSE);
 }

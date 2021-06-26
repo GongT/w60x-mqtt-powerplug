@@ -37,7 +37,7 @@ static void key_handler(void *args)
 		return;
 
 	uint32_t msg = (delta & 0x7FFFFFFF) + (key_press_status ? 0x80000000 : 0);
-	KPRINTF_DIM("key raw event: %d", key_press_status);
+	_DEV_DEBUG("key raw event: %d", key_press_status);
 	rt_mb_send(event_msg_queue, msg);
 }
 
@@ -52,49 +52,45 @@ __attribute__((noreturn)) static void key_event_reduce_main(void *arg)
 		rt_bool_t is_timeout = rt_mb_recv(event_msg_queue, &store, timeout) != RT_EOK;
 		if (is_timeout)
 		{
-			KPRINTF_DIM("timeout: wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
+			_DEV_DEBUG("timeout: wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
 			timeout = RT_WAITING_FOREVER;
 			if (wait_double_click)
 			{
 				wait_double_click = RT_FALSE;
-				// KPRINTF_COLOR(9, "todo: single_click");
 				main_event_queue(SEND_BUTTON, "single", RT_FALSE);
 			}
 			else if (wait_long_press)
 			{
 				wait_long_press = RT_FALSE;
-				// KPRINTF_COLOR(9, "todo: long_press");
 				main_event_queue(SEND_BUTTON, "long", RT_FALSE);
 			}
 			continue;
 		}
 
-		// rt_tick_t delta_ms = store & 0x7FFFFFFF;
 		rt_bool_t is_key_down = (store & 0x80000000) != 0;
 
 		if (is_key_down)
 		{
-			KPRINTF_DIM("down   : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
+			_DEV_DEBUG("down   : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
 			if (wait_double_click)
 			{
 				wait_double_click = RT_FALSE;
 				timeout = RT_WAITING_FOREVER;
-				// KPRINTF_COLOR(9, "todo: double_click");
 				main_event_queue(SEND_BUTTON, "double", RT_FALSE);
 			}
 			else
 			{
-				KPRINTF_DIM("+wait_long_press");
+				_DEV_DEBUG("+wait_long_press");
 				wait_long_press = RT_TRUE;
 				timeout = RT_TICK_FROM_MILLISECOND(LONG_PRESS_HOLD_MS);
 			}
 		}
 		else
 		{
-			KPRINTF_DIM("up     : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
+			_DEV_DEBUG("up     : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
 			if (wait_long_press)
 			{
-				KPRINTF_DIM("+wait_double_click   -wait_long_press");
+				_DEV_DEBUG("+wait_double_click   -wait_long_press");
 				wait_long_press = RT_FALSE;
 				wait_double_click = RT_TRUE;
 				timeout = RT_TICK_FROM_MILLISECOND(DBLCLICK_MAX_DELAY_MS);

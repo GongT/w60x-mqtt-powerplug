@@ -30,7 +30,7 @@ static void buzzer_play(uint16_t toneHz, uint8_t volumePercent)
 #if BEEP_INVERT
 	pulse = period - pulse;
 #endif
-	KPRINTF_DIM("%dHz, %d%% ::: period=%lu, pulse=%lu", toneHz, volumePercent, period, pulse);
+	_DEV_DEBUG("%dHz, %d%% ::: period=%lu, pulse=%lu", toneHz, volumePercent, period, pulse);
 	assert0(rt_pwm_set(pwm_dev, PWM_CH_BEEP, period, pulse));
 }
 
@@ -43,7 +43,7 @@ static void buzzer_play_delay(uint16_t toneHz, uint8_t volumePercent, uint32_t t
 
 static void beep_thread_main(void *args)
 {
-	KPRINTF_DIM("beep thread started.");
+	_DEV_DEBUG("beep thread started.");
 	beep_state s;
 	while (1)
 	{
