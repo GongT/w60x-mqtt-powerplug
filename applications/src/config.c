@@ -3,8 +3,11 @@
 
 __attribute__((noreturn)) static void reboot()
 {
-	rt_enter_critical();
 	rt_kprintf("\n");
+
+	led_blink(LED_RED, 1000);
+	led_blink(LED_GREEN, 1000);
+
 	for (int i = 10; i > 0; i--)
 	{
 		KPRINTF_COLOR(9, "system will reboot in %ds...", i);
