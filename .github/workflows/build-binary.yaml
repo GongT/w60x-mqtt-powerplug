@@ -120,7 +120,6 @@ jobs:
           chmod 0600 "$SSH_CONFIG_FILE"
 
       - name: Copy to My Server
-        # ${{ secrets.DEPLOY_CONFIG }}
         run: |
           ssh -F $SSH_CONFIG_FILE target mkdir -p /data/AppData/data/iot-config/plug/
           scp -F $SSH_CONFIG_FILE application.img target:/data/AppData/data/iot-config/plug/
