@@ -82,8 +82,7 @@ jobs:
 
       - name: Build
         run: |
-          echo "" >> rtconfig_project.h
-          echo "#undef RT_USING_FINSH" >> rtconfig_project.h
+          sed -i '/CONFIG_RT_USING_FINSH/d' .config
           python control.py scons
 
       - uses: marvinpinto/action-automatic-releases@latest
