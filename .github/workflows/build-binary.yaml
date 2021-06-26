@@ -82,7 +82,7 @@ jobs:
 
       - name: Build
         run: |
-          sed -i '/CONFIG_RT_USING_FINSH/d' .config
+          sed -i '/_FINSH/d' .config
           python control.py scons
 
       - uses: marvinpinto/action-automatic-releases@latest
