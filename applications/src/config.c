@@ -1,16 +1,6 @@
 #include "app.h"
 #include <gongt/config_tool.h>
 
-static void thread_main_with_reboot(int (*child)())
-{
-	child();
-#if DISABLE_REBOOT
-	KPRINTF_COLOR(9, "development mode, skip reboot()");
-#else
-	reboot();
-#endif
-}
-
 __attribute__((noreturn)) static void reboot()
 {
 	rt_enter_critical();
@@ -25,6 +15,16 @@ __attribute__((noreturn)) static void reboot()
 	rt_hw_cpu_reset();
 	while (1)
 		;
+}
+
+static void thread_main_with_reboot(int (*child)())
+{
+	child();
+#if DISABLE_REBOOT
+	KPRINTF_COLOR(9, "development mode, skip reboot()");
+#else
+	reboot();
+#endif
 }
 
 enum CONFIG_STATUS goto_config_mode_with_alert()
