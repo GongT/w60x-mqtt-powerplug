@@ -111,6 +111,11 @@ static rt_err_t mqtt_params_init()
 	return RT_EOK;
 }
 
+static void publish_connect()
+{
+	action_publish(MQTT_TOPIC_CONNECT, "yes");
+}
+
 int start_mqtt(void)
 {
 	mqtt_log_init();
@@ -126,6 +131,8 @@ int start_mqtt(void)
 	mqtt_set_password(client, (char *)mqtt_password);
 	mqtt_set_client_id(client, (char *)mqtt_device_id);
 	mqtt_set_will_flag(client, 1);
+	// mqtt_set_cmd_timeout(client, )
+	mqtt_set_reconnect_handler(client, publish_connect);
 	mqtt_set_keep_alive_interval(client, 30);
 #ifdef KAWAII_MQTT_NETWORK_TYPE_TLS
 	mqtt_set_ca(client, mbedtls_root_certificate);
@@ -141,13 +148,15 @@ int start_mqtt(void)
 		return ret;
 	}
 
+	rt_thread_mdelay(1000);
+
 	mqtt_subscribe(client, mqtt_input_topic_relay, QOS1, mqtt_topic_handler_relay);
 	mqtt_subscribe(client, mqtt_input_topic_beep, QOS0, mqtt_topic_handler_beep);
 	mqtt_subscribe(client, mqtt_input_topic_led, QOS0, mqtt_topic_handler_led);
 
 	mqtt_subscribe(client, mqtt_input_topic_update, QOS0, mqtt_topic_handler_upgrade);
 
-	action_publish_retained(MQTT_TOPIC_CONNECT, "yes");
+	publish_connect();
 	return 0;
 }
 

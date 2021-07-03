@@ -4,9 +4,6 @@
 #error "clock is too slow"
 #endif
 
-#define PRESS_MAX_DELAY_TICK (PRESS_MAX_DELAY_MS / (1000 / RT_TICK_PER_SECOND))
-#define DBLCLICK_MAX_DELAY_TICK (DBLCLICK_MAX_DELAY_MS / (1000 / RT_TICK_PER_SECOND))
-
 static rt_bool_t key_press_status = RT_FALSE;
 static rt_tick_t last_event_time = 0;
 static rt_mailbox_t event_msg_queue;
@@ -29,7 +26,7 @@ static void key_handler(void *args)
 		return;
 	key_press_status = new_status;
 
-	rt_tick_t this_time = rt_tick_get_millisecond();
+	rt_tick_t this_time = rt_tick_get();
 	rt_tick_t delta = this_time - last_event_time;
 	last_event_time = this_time;
 
