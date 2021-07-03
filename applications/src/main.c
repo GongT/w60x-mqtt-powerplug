@@ -22,9 +22,6 @@ static void switch_priority()
 
 static void app_main()
 {
-	if (get_storage_size(STORE_KEY_MQTT_DEV_TITLE) == 0)
-		goto_config_mode_and_quit();
-
 	led_blink(LED_GREEN, 1000);
 	rt_thread_mdelay(500);
 	led_blink(LED_RED, 1000);
@@ -88,12 +85,6 @@ int main(void)
 		rt_kprintf("Boot Times (size=%d): %.*s\n", bt_size, bt_size, bt);
 	}
 
-	if (is_update_mode())
-	{
-		goto_update_mode_and_quit();
-		return 0;
-	}
-
 	if (key_is_pressed())
 	{
 		KPRINTF_COLOR(14, "release in 1s exit main.");
@@ -113,6 +104,15 @@ int main(void)
 			return 0;
 		}
 	}
+
+	if (is_update_mode())
+	{
+		goto_update_mode_and_quit();
+		return 0;
+	}
+
+	if (get_storage_size(STORE_KEY_MQTT_DEV_TITLE) == 0)
+		goto_config_mode_and_quit();
 
 	real_main_thread = rt_thread_create("user-app", app_main, NULL, 10240, 20, 20);
 	rt_thread_startup(real_main_thread);
