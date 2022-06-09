@@ -16,3 +16,4 @@ packages/
 /rt-thread
 .ropeproject
 /test.conf
+.env

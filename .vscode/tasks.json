@@ -6,7 +6,7 @@
 			"label": "刷机",
 			"type": "process",
 			"problemMatcher": [],
-			"command": "python",
+            "command": "${command:python.interpreterPath}",
 			"args": [
 				"control.py",
 				"flash",
@@ -20,7 +20,7 @@
 			"label": "构建、刷机并启动串口监视器",
 			"type": "process",
 			"problemMatcher": [],
-			"command": "python",
+            "command": "${command:python.interpreterPath}",
 			"args": [
 				"control.py",
 				"flashterm",
@@ -36,7 +36,7 @@
 			"label": "▶刷机并启动串口监视器",
 			"type": "process",
 			"problemMatcher": [],
-			"command": "python",
+            "command": "${command:python.interpreterPath}",
 			"args": [
 				"control.py",
 				"flashterm",
@@ -49,7 +49,7 @@
 			"label": "串口监视器",
 			"type": "process",
 			"problemMatcher": [],
-			"command": "python",
+            "command": "${command:python.interpreterPath}",
 			"args": [
 				"control.py",
 				"term",
@@ -62,7 +62,7 @@
 			"label": "刷新compile_commands.json",
 			"type": "process",
 			"problemMatcher": [],
-			"command": "python",
+            "command": "${command:python.interpreterPath}",
 			"args": [
 				"control.py",
 				"scons",
@@ -81,7 +81,7 @@
 			},
 			"isBuildCommand": true,
 			"problemMatcher": "$gcc",
-			"command": "python",
+            "command": "${command:python.interpreterPath}",
 			"args": [
 				"control.py",
 				"scons",
@@ -97,7 +97,7 @@
 			"label": "运行MenuConfig",
 			"type": "process",
 			"problemMatcher": [],
-			"command": "python",
+            "command": "${command:python.interpreterPath}",
 			"args": [
 				"control.py",
 				"config",
