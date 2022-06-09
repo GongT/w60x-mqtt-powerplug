@@ -15,7 +15,11 @@ static void keep_alive() {
 		}
 
 		time(&now);
-		strftime(buf, sizeof buf, "%FT%TZ", gmtime(&now));
+		if (now) {
+			strftime(buf, sizeof buf, "%FT%TZ", gmtime(&now));
+		} else {
+			sprintf(buf, "+%u", rt_tick_get_millisecond() / 1000);
+		}
 		main_event_queue(REPORT_KEEPALIVE, buf, RT_FALSE);
 	}
 }
