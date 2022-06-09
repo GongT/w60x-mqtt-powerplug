@@ -24,7 +24,9 @@ struct led_blinking_thread {
 static struct led_blinking_thread blinking_status[2];
 typedef struct led_blinking_thread *led_blinking_thread_t;
 
-static void pwm_set(uint ch, uint8_t percent) {
+extern struct rt_device_pwm *pwm_dev;
+
+static void pwm_set(uint32_t ch, uint8_t percent) {
 	rt_err_t ret = rt_pwm_set(pwm_dev, ch, 1000000, (1000000 - 100 * percent * percent));
 	if (ret != RT_EOK)
 		KPRINTF_COLOR(11, "rt_pwm_set(pwm_dev, %d, %d, %d): return %ld", ch, 1000000, (1000000 - 100 * percent * percent), ret);

@@ -1,4 +1,5 @@
 #include "app.h"
+#include <string.h>
 #include <stdlib.h>
 #include <easyflash.h>
 #include <gongt/config_tool.h>

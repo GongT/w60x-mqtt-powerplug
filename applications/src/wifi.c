@@ -1,10 +1,12 @@
 #include "app.h"
 #include "init.h"
+#include <string.h>
 #include <easyflash.h>
 #include <sys/socket.h>
 #include <netdev.h>
 #include <rthw.h>
 #include <gongt/config_tool.h>
+
 extern void print_netdev_list();
 void print_netdev_list() {
 	rt_base_t level;

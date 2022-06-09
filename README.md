@@ -2,8 +2,11 @@
 
 1. get `gcc-arm-none-eabi-10-2020-q4-major`
 2. `python -m venv .env`
-3. `./.env/bin/pip install -r requirements.txt`
-3. `./.env/bin/pip install -r rt-thread-w60x/requirements.txt`
+3. 进入环境
+4. `pip install -r requirements.txt`
+5. `pip install -r rt-thread-w60x/requirements.txt`
+6. `python control.py rtt update v4.0.3`
+7. `python control.py pkgs --upgrade`
 
 ### Ver.1
 CONFIG_WM_PWM_CH1_PIN=23

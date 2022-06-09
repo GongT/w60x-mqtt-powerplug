@@ -1,6 +1,5 @@
 #include "shell.h"
-
-extern struct rt_device_pwm *pwm_dev;
+#include <stdlib.h>
 
 static rt_bool_t parse_state(beep_state_t store, int argc, char **argv) {
 	if (argc != 4) {
@@ -8,9 +7,9 @@ static rt_bool_t parse_state(beep_state_t store, int argc, char **argv) {
 		return RT_FALSE;
 	}
 
-	uint32_t toneHz = atol(argv[1]);
-	uint32_t volumePercent = atol(argv[2]);
-	uint32_t timeMs = atol(argv[3]);
+	uint32_t toneHz = strtoul(argv[1], NULL, 10);
+	uint32_t volumePercent = strtoul(argv[2], NULL, 10);
+	uint32_t timeMs = strtoul(argv[3], NULL, 10);
 
 	store->toneHz = toneHz;
 	store->volumePercent = volumePercent;

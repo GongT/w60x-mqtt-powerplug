@@ -23,7 +23,7 @@ objs += DefineGroup('Applications',
                     src,
                     depend=[''],
                     CPPPATH=CPPPATH,
-                    LOCAL_CCFLAGS=' -DUSER_SCOPE -W' + ' -W'.join(gcc_warn_flag) + ' ')
+                    LOCAL_CCFLAGS=' -D_GNU_SOURCE -DUSER_SCOPE -W' + ' -W'.join(gcc_warn_flag) + ' ')
 
 src = Glob('shell/*.c')
 src += Glob('shell/**/*.c')

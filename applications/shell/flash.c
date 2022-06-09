@@ -35,7 +35,7 @@ static int flash_read(unsigned long from, size_t size) {
 	int ret = tls_fls_read(from, buff, size);
 
 	rt_kputs("\n");
-	uint i;
+	size_t i;
 	for (i = 0; i < size; i++) {
 		rt_kprintf("%02X ", buff[i] & 0xff);
 		if ((i + 1) % 16 == 0)

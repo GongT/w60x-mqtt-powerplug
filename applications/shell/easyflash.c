@@ -23,4 +23,4 @@ static void msh_getenv(uint8_t argc, char **argv) {
 	rt_kputs(buff);
 	rt_kputs("'\n");
 }
-DEFINE_CMD(getenv, msh_getenv, Get an envrionment variable by name.);
+DEFINE_CMD(msh_getenv, getenv, Get an envrionment variable by name.);

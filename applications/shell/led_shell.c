@@ -1,4 +1,5 @@
 #include "shell.h"
+#include <stdlib.h>
 
 #define USAGE_RETURN(MSG, ...)                                                                   \
 	do {                                                                                         \
