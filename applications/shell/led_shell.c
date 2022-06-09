@@ -1,8 +1,7 @@
 #include "shell.h"
 
 #define USAGE_RETURN(MSG, ...)                                                                   \
-	do                                                                                           \
-	{                                                                                            \
+	do {                                                                                         \
 		if (strlen(MSG))                                                                         \
 			rt_kprintf(MSG "\n", ##__VA_ARGS__);                                                 \
 		rt_kprintf("led use red/green <current: %s>\n", selection == LED_RED ? "red" : "green"); \
@@ -15,8 +14,7 @@
 
 static int selection = LED_RED;
 
-static int on_off(const char *arg)
-{
+static int on_off(const char *arg) {
 	if (str_eq(arg, "on"))
 		led_on(selection);
 	else if (str_eq(arg, "off"))
@@ -25,56 +23,44 @@ static int on_off(const char *arg)
 		return 2;
 	return 0;
 }
-static int use(const char *arg)
-{
-	if (str_prefix("red", arg))
-	{
+static int use(const char *arg) {
+	if (str_prefix("red", arg)) {
 		rt_kprintf("selected red led\n");
 		selection = LED_RED;
-	}
-	else if (str_prefix("green", arg))
-	{
+	} else if (str_prefix("green", arg)) {
 		rt_kprintf("selected green led\n");
 		selection = LED_GREEN;
-	}
-	else
+	} else
 		RETURN_WITH_ERR("invalid selection.");
 	return 0;
 }
 
-static int set_fade(int value)
-{
+static int set_fade(int value) {
 	if (value < 1000 || value > 10000)
 		RETURN_WITH_ERR("cycle only allow 1000(1s)~10000(10s)");
 	led_fade(selection, value);
 	return 0;
 }
-static int set_blink(int value)
-{
+static int set_blink(int value) {
 	if (value < 100 || value > 2000)
 		RETURN_WITH_ERR("cycle only allow 100(0.1s)~2(2s)");
 	led_blink(selection, value);
 	return 0;
 }
-static int set_static(int value)
-{
+static int set_static(int value) {
 	if (value < 0 || value > 100)
 		RETURN_WITH_ERR("level only allow 0~100");
 	led_static(selection, value);
 	return 0;
 }
 
-static long led_commands(int argc, char **argv)
-{
+static long led_commands(int argc, char **argv) {
 	int r = 2;
-	if (argc == 2)
-	{
+	if (argc == 2) {
 		r = on_off(argv[1]);
 		if (r != 0)
 			USAGE_RETURN("invalid command: %s", argv[2]);
-	}
-	else if (argc == 3)
-	{
+	} else if (argc == 3) {
 		if (str_prefix("use", argv[1]))
 			r = use(argv[2]);
 		else if (str_prefix("fade", argv[1]))

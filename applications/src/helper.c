@@ -9,18 +9,15 @@
 
 char shared_log_buffer[RT_CONSOLEBUF_SIZE];
 
-static void shutdown()
-{
+static void shutdown() {
 	KPRINTF_COLOR(9, "busy loop soft stop.\n");
 	while (1)
 		;
 }
 
-__attribute__((noreturn)) void thread_suspend()
-{
+__attribute__((noreturn)) void thread_suspend() {
 	rt_thread_t self = rt_thread_self();
-	if (rt_object_get_type((rt_object_t)self) != RT_Object_Class_Thread)
-	{
+	if (rt_object_get_type((rt_object_t)self) != RT_Object_Class_Thread) {
 		KPRINTF_COLOR(9, "thread object memory area has been destroyed, halt cpu now.\n");
 		shutdown();
 		while (1)
@@ -48,22 +45,18 @@ __attribute__((noreturn)) void thread_suspend()
 		rt_thread_mdelay(10000);
 }
 
-__attribute__((noreturn)) static void suspend()
-{
+__attribute__((noreturn)) static void suspend() {
 	rt_thread_t self = rt_thread_self();
-	if (self == RT_NULL)
-	{
+	if (self == RT_NULL) {
 		KPRINTF_COLOR(9, "suspend in ISR, halt cpu now.\n");
 		shutdown();
 		while (1)
 			;
-	}
-	else
+	} else
 		thread_suspend();
 }
 
-__attribute__((noreturn)) static void reboot()
-{
+__attribute__((noreturn)) static void reboot() {
 #if DISABLE_REBOOT
 	KPRINTF_COLOR(14, "reboot disabled, suspend instead.\n");
 	suspend();
@@ -73,8 +66,7 @@ __attribute__((noreturn)) static void reboot()
 #endif
 }
 
-__attribute__((noreturn)) void __FATAL_ERROR(const char *file, const char *fn, int lineno, const char *const MSG, ...)
-{
+__attribute__((noreturn)) void __FATAL_ERROR(const char *file, const char *fn, int lineno, const char *const MSG, ...) {
 	va_list argptr;
 	va_start(argptr, MSG);
 	rt_vsprintf(shared_log_buffer, MSG, argptr);
@@ -96,8 +88,7 @@ __attribute__((noreturn)) void __FATAL_ERROR(const char *file, const char *fn, i
 	reboot();
 }
 
-__attribute__((noreturn)) void __PHYSICAL_ERROR(const char *file, const char *fn, int lineno, const char *const MSG, ...)
-{
+__attribute__((noreturn)) void __PHYSICAL_ERROR(const char *file, const char *fn, int lineno, const char *const MSG, ...) {
 	va_list argptr;
 	va_start(argptr, MSG);
 	rt_vsprintf(shared_log_buffer, MSG, argptr);
@@ -118,8 +109,7 @@ __attribute__((noreturn)) void __PHYSICAL_ERROR(const char *file, const char *fn
 	suspend();
 }
 
-static void rtt_user_assert_hook(const char *ex, const char *func, rt_size_t line)
-{
+static void rtt_user_assert_hook(const char *ex, const char *func, rt_size_t line) {
 	KPRINTF_COLOR(9, "\r[ASSERT FAILED] @ %s:%ld.", func, line, ex);
 	KPRINTF_COLOR(9, " * assert condition: %s\n", ex);
 
@@ -130,8 +120,7 @@ static void rtt_user_assert_hook(const char *ex, const char *func, rt_size_t lin
 	reboot();
 }
 
-static int set_assert()
-{
+static int set_assert() {
 	rt_assert_set_hook(rtt_user_assert_hook);
 	return 0;
 }

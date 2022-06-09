@@ -17,8 +17,7 @@ extern void list_mailbox();
 extern void list_event();
 extern void list_sem();
 
-static void handle_task_kill(void *args)
-{
+static void handle_task_kill(void *args) {
 	KPRINTF_COLOR(9, "some thread delay");
 
 #ifdef RT_USING_FINSH
@@ -36,24 +35,19 @@ static void handle_task_kill(void *args)
 #endif
 }
 
-static void schedule_record(void *args)
-{
-	while (1)
-	{
+static void schedule_record(void *args) {
+	while (1) {
 		// KPRINTF_DIM("-- schedule_record");
-		if (rt_timer_stop(tmr) != RT_EOK)
-		{
+		if (rt_timer_stop(tmr) != RT_EOK) {
 			KPRINTF_COLOR(9, "* timer stop fail");
 		}
-		if (rt_timer_start(tmr) != RT_EOK)
-		{
+		if (rt_timer_start(tmr) != RT_EOK) {
 			KPRINTF_COLOR(9, "* timer start fail");
 		}
 		rt_thread_delay(to);
 	}
 }
-static int task_killer_init()
-{
+static int task_killer_init() {
 	to = rt_tick_from_millisecond(TIMEOUT_MS);
 	to3 = to * 3;
 

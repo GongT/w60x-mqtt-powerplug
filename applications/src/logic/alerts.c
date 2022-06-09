@@ -2,11 +2,9 @@
 #include "init.h"
 #include <gongt/config_tool.h>
 
-void config_mode_status_callback(enum CONFIG_STATUS status)
-{
+void config_mode_status_callback(enum CONFIG_STATUS status) {
 	static int last_state = 0;
-	switch (status)
-	{
+	switch (status) {
 	case CONFIG_STATUS_WIFI_CONNECT:
 		led_blink(LED_GREEN, 400);
 		rt_thread_mdelay(200);
@@ -33,8 +31,7 @@ void config_mode_status_callback(enum CONFIG_STATUS status)
 	}
 }
 
-void alert_config_start()
-{
+void alert_config_start() {
 	buzzer_beep(800, 20, 30);
 	buzzer_beep(800, 0, 30);
 	buzzer_beep(800, 20, 30);
@@ -42,16 +39,14 @@ void alert_config_start()
 	buzzer_beep(800, 20, 30);
 }
 
-void alert_config_end()
-{
+void alert_config_end() {
 	led_off(LED_RED);
 	led_on(LED_GREEN);
 	buzzer_beep(3000, 50, 300);
 	buzzer_beep(3000, 0, 30);
 	buzzer_beep(1000, 20, 100);
 }
-void alert_config_fail()
-{
+void alert_config_fail() {
 	led_off(LED_GREEN);
 	led_on(LED_RED);
 	buzzer_beep(5000, 30, 1000);
@@ -59,8 +54,7 @@ void alert_config_fail()
 
 static rt_bool_t first_success = RT_TRUE;
 
-static void handle_wifi_connect(int event, struct rt_wlan_buff *buff, void *parameter)
-{
+static void handle_wifi_connect(int event, struct rt_wlan_buff *buff, void *parameter) {
 	// struct ip_addr_t *ip = (struct ip_addr_t *)buff;
 	// rt_kprintf(" * IP Addr: %s", ip->);
 	buzzer_beep(523, 30, 50);
@@ -70,8 +64,7 @@ static void handle_wifi_connect(int event, struct rt_wlan_buff *buff, void *para
 	buzzer_beep(698, 30, 50);
 }
 
-static void handle_wifi_error(int event, struct rt_wlan_buff *buff, void *parameter)
-{
+static void handle_wifi_error(int event, struct rt_wlan_buff *buff, void *parameter) {
 	first_success = RT_FALSE;
 
 	buzzer_beep(698, 30, 50);
@@ -80,18 +73,14 @@ static void handle_wifi_error(int event, struct rt_wlan_buff *buff, void *parame
 	buzzer_beep(3000, 0, 50);
 	buzzer_beep(523, 30, 50);
 
-	if (event == RT_WLAN_EVT_STA_CONNECTED_FAIL)
-	{
+	if (event == RT_WLAN_EVT_STA_CONNECTED_FAIL) {
 		KPRINTF_COLOR(9, "event: RT_WLAN_EVT_STA_CONNECTED_FAIL");
-	}
-	else if (event == RT_WLAN_EVT_STA_DISCONNECTED)
-	{
+	} else if (event == RT_WLAN_EVT_STA_DISCONNECTED) {
 		KPRINTF_COLOR(9, "event: RT_WLAN_EVT_STA_DISCONNECTED");
 	}
 }
 
-void init_wifi_alert()
-{
+void init_wifi_alert() {
 	rt_wlan_register_event_handler(RT_WLAN_EVT_READY, handle_wifi_connect, RT_NULL);
 	rt_wlan_register_event_handler(RT_WLAN_EVT_STA_CONNECTED_FAIL, handle_wifi_error, RT_NULL);
 	rt_wlan_register_event_handler(RT_WLAN_EVT_STA_DISCONNECTED, handle_wifi_error, RT_NULL);

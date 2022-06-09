@@ -1,15 +1,13 @@
 #include "app.h"
 #include <gongt/config_tool.h>
 
-__attribute__((noreturn)) static void reboot()
-{
+__attribute__((noreturn)) static void reboot() {
 	rt_kprintf("\n");
 
 	led_blink(LED_RED, 1000);
 	led_blink(LED_GREEN, 1000);
 
-	for (int i = 10; i > 0; i--)
-	{
+	for (int i = 10; i > 0; i--) {
 		KPRINTF_COLOR(9, "system will reboot in %ds...", i);
 		rt_thread_mdelay(1000);
 	}
@@ -20,8 +18,7 @@ __attribute__((noreturn)) static void reboot()
 		;
 }
 
-static void thread_main_with_reboot(int (*child)())
-{
+static void thread_main_with_reboot(int (*child)()) {
 	child();
 #if DISABLE_REBOOT
 	KPRINTF_COLOR(9, "development mode, skip reboot()");
@@ -30,8 +27,7 @@ static void thread_main_with_reboot(int (*child)())
 #endif
 }
 
-enum CONFIG_STATUS goto_config_mode_with_alert()
-{
+enum CONFIG_STATUS goto_config_mode_with_alert() {
 	alert_config_start();
 
 	enum CONFIG_STATUS ret = goto_config_mode();
@@ -45,12 +41,12 @@ enum CONFIG_STATUS goto_config_mode_with_alert()
 	return ret;
 }
 
-__attribute__((noreturn)) void goto_config_mode_and_quit()
-{
+__attribute__((noreturn)) void goto_config_mode_and_quit() {
 	KPRINTF_DIM("going to config mode.");
 
 #if AUTO_GOTO_CONFIG
-	rt_thread_t thread = rt_thread_create("config-mode", thread_main_with_reboot, goto_config_mode_with_alert, 8192, rt_thread_self()->current_priority, 10);
+	rt_thread_t thread =
+		rt_thread_create("config-mode", thread_main_with_reboot, goto_config_mode_with_alert, 8192, rt_thread_self()->current_priority, 10);
 	rt_thread_startup(thread);
 	rt_thread_exit();
 #else
@@ -59,8 +55,7 @@ __attribute__((noreturn)) void goto_config_mode_and_quit()
 #endif
 }
 
-static enum CONFIG_STATUS goto_update_mode_with_alert()
-{
+static enum CONFIG_STATUS goto_update_mode_with_alert() {
 	alert_config_start();
 
 	enum CONFIG_STATUS ret = goto_config_mode_OTA();
@@ -73,10 +68,10 @@ static enum CONFIG_STATUS goto_update_mode_with_alert()
 	return ret;
 }
 
-void goto_update_mode_and_quit()
-{
+void goto_update_mode_and_quit() {
 	KPRINTF_DIM("going to update mode.");
-	rt_thread_t thread = rt_thread_create("update-mode", thread_main_with_reboot, goto_config_mode_with_alert, 8192, rt_thread_self()->current_priority, 10);
+	rt_thread_t thread =
+		rt_thread_create("update-mode", thread_main_with_reboot, goto_config_mode_with_alert, 8192, rt_thread_self()->current_priority, 10);
 	rt_thread_startup(thread);
 	rt_thread_exit();
 }

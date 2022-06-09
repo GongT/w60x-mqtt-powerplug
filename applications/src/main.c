@@ -14,14 +14,12 @@
 extern time_t ntp_sync_to_rtc(const char *host_name);
 static rt_thread_t real_main_thread = NULL;
 
-static void switch_priority()
-{
+static void switch_priority() {
 	uint8_t p = 25;
 	rt_thread_control(rt_thread_self(), RT_THREAD_CTRL_CHANGE_PRIORITY, &p);
 }
 
-static void app_main()
-{
+static void app_main() {
 	led_blink(LED_GREEN, 1000);
 	rt_thread_mdelay(500);
 	led_blink(LED_RED, 1000);
@@ -30,8 +28,7 @@ static void app_main()
 	if (connect_wifi() != 0)
 		goto_config_mode_and_quit();
 
-	while (1)
-	{
+	while (1) {
 		KPRINTF_COLOR(6, "ntp_sync_to_rtc()");
 		time_t t = ntp_sync_to_rtc(NULL);
 		KPRINTF_COLOR(6, "  -> %ld\n", t);
@@ -56,8 +53,7 @@ static void app_main()
 	start_main_event_loop();
 }
 
-int main(void)
-{
+int main(void) {
 	print_internal_flash_map();
 
 	KPRINTF_COLOR(6, "Main function has called...");
@@ -75,8 +71,7 @@ int main(void)
 	if (easyflash_init() != EF_NO_ERR)
 		PHYSICAL_ERROR("Failed to init easyflash!");
 
-	if (0)
-	{
+	if (0) {
 		KPRINTF_COLOR(6, "test_env()");
 		test_env();
 		size_t bt_size = get_storage_size("boot_times");
@@ -85,28 +80,23 @@ int main(void)
 		rt_kprintf("Boot Times (size=%d): %.*s\n", bt_size, bt_size, bt);
 	}
 
-	if (key_is_pressed())
-	{
+	if (key_is_pressed()) {
 		KPRINTF_COLOR(14, "release in 1s exit main.");
 		buzzer_beep(200, 5, 10);
 		led_static(LED_RED, 50);
 		led_off(LED_GREEN);
 		rt_thread_mdelay(1000);
 
-		if (key_is_pressed())
-		{
+		if (key_is_pressed()) {
 			goto_config_mode_and_quit();
 			return 0;
-		}
-		else
-		{
+		} else {
 			buzzer_beep(200, 5, 500);
 			return 0;
 		}
 	}
 
-	if (is_update_mode())
-	{
+	if (is_update_mode()) {
 		goto_update_mode_and_quit();
 		return 0;
 	}

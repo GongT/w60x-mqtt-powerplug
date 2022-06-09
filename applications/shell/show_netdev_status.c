@@ -21,19 +21,16 @@ static char *netdev_status_map[] = {
 	[NETDEV_CB_STATUS_DHCP_DISABLE] = "NETDEV_CB_STATUS_DHCP_DISABLE",
 };
 
-static void handle_change_status(struct netdev *netdev, enum netdev_cb_type type)
-{
+static void handle_change_status(struct netdev *netdev, enum netdev_cb_type type) {
 	KPRINTF_COLOR(14, "netdev status changed %s(%d)", netdev_status_map[type], type);
 	netdev_ifconfig(1, NULL);
 }
-static void handle_change_addr(struct netdev *netdev, enum netdev_cb_type type)
-{
+static void handle_change_addr(struct netdev *netdev, enum netdev_cb_type type) {
 	KPRINTF_COLOR(14, "netdev address changed %s(%d)", netdev_status_map[type], type);
 	netdev_ifconfig(1, NULL);
 }
 
-static int init_debug_netdev()
-{
+static int init_debug_netdev() {
 	return 0;
 	netdev_set_status_callback(CONFIG_INTERFACE_NETDEV, handle_change_status);
 	netdev_set_addr_callback(CONFIG_INTERFACE_NETDEV, handle_change_addr);

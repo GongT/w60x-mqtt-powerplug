@@ -9,18 +9,15 @@ static rt_tick_t last_event_time = 0;
 static rt_mailbox_t event_msg_queue;
 static rt_thread_t reduce_thread;
 
-rt_bool_t key_is_pressed()
-{
+rt_bool_t key_is_pressed() {
 	return key_press_status;
 }
 
-ALWAYS_INLINE rt_bool_t check()
-{
+ALWAYS_INLINE rt_bool_t check() {
 	return rt_pin_read(PIN_KEY) == KEY_DOWN_IS;
 }
 
-static void key_handler(void *args)
-{
+static void key_handler(void *args) {
 	rt_bool_t new_status = check();
 	if (key_press_status == new_status)
 		return;
@@ -38,26 +35,20 @@ static void key_handler(void *args)
 	rt_mb_send(event_msg_queue, msg);
 }
 
-__attribute__((noreturn)) static void key_event_reduce_main(void *arg)
-{
+__attribute__((noreturn)) static void key_event_reduce_main(void *arg) {
 	rt_int32_t timeout = RT_WAITING_FOREVER;
 	uint32_t store;
 	rt_bool_t wait_double_click = RT_FALSE, wait_long_press = RT_FALSE;
 
-	while (1)
-	{
+	while (1) {
 		rt_bool_t is_timeout = rt_mb_recv(event_msg_queue, &store, timeout) != RT_EOK;
-		if (is_timeout)
-		{
+		if (is_timeout) {
 			_DEV_DEBUG("timeout: wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
 			timeout = RT_WAITING_FOREVER;
-			if (wait_double_click)
-			{
+			if (wait_double_click) {
 				wait_double_click = RT_FALSE;
 				main_event_queue(SEND_BUTTON, "single", RT_FALSE);
-			}
-			else if (wait_long_press)
-			{
+			} else if (wait_long_press) {
 				wait_long_press = RT_FALSE;
 				main_event_queue(SEND_BUTTON, "long", RT_FALSE);
 			}
@@ -66,27 +57,20 @@ __attribute__((noreturn)) static void key_event_reduce_main(void *arg)
 
 		rt_bool_t is_key_down = (store & 0x80000000) != 0;
 
-		if (is_key_down)
-		{
+		if (is_key_down) {
 			_DEV_DEBUG("down   : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
-			if (wait_double_click)
-			{
+			if (wait_double_click) {
 				wait_double_click = RT_FALSE;
 				timeout = RT_WAITING_FOREVER;
 				main_event_queue(SEND_BUTTON, "double", RT_FALSE);
-			}
-			else
-			{
+			} else {
 				_DEV_DEBUG("+wait_long_press");
 				wait_long_press = RT_TRUE;
 				timeout = RT_TICK_FROM_MILLISECOND(LONG_PRESS_HOLD_MS);
 			}
-		}
-		else
-		{
+		} else {
 			_DEV_DEBUG("up     : wait_double_click=%d, wait_long_press=%d", wait_double_click, wait_long_press);
-			if (wait_long_press)
-			{
+			if (wait_long_press) {
 				_DEV_DEBUG("+wait_double_click   -wait_long_press");
 				wait_long_press = RT_FALSE;
 				wait_double_click = RT_TRUE;
@@ -96,17 +80,13 @@ __attribute__((noreturn)) static void key_event_reduce_main(void *arg)
 	}
 }
 
-void key_press_init()
-{
+void key_press_init() {
 	rt_pin_mode(PIN_KEY, PIN_MODE_INPUT_PULLUP);
 
 	key_press_status = check();
-	if (key_press_status)
-	{
+	if (key_press_status) {
 		KPRINTF_COLOR(11, "key0 pin (%d) init state is pressed", PIN_KEY);
-	}
-	else
-	{
+	} else {
 		KPRINTF_COLOR(11, "key0 pin (%d) init state is not pressed", PIN_KEY);
 	}
 

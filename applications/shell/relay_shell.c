@@ -1,7 +1,6 @@
 #include "shell.h"
 
-static long set_relay_msh(int argc, char **argv)
-{
+static long set_relay_msh(int argc, char **argv) {
 	if (str_eq(argv[1], "on"))
 		relay_set(RELAY_ON);
 	else if (str_eq(argv[1], "off"))

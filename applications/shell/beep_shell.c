@@ -2,10 +2,8 @@
 
 extern struct rt_device_pwm *pwm_dev;
 
-static rt_bool_t parse_state(beep_state_t store, int argc, char **argv)
-{
-	if (argc != 4)
-	{
+static rt_bool_t parse_state(beep_state_t store, int argc, char **argv) {
+	if (argc != 4) {
 		rt_kprintf("%s tone<Hz> volume<%%> time<ms>\n", argv[0]);
 		return RT_FALSE;
 	}
@@ -21,8 +19,7 @@ static rt_bool_t parse_state(beep_state_t store, int argc, char **argv)
 	return RT_TRUE;
 }
 
-static long beep_msh(int argc, char **argv)
-{
+static long beep_msh(int argc, char **argv) {
 	static beep_state s;
 	if (!parse_state(&s, argc, argv))
 		return 1;
@@ -34,8 +31,7 @@ DEFINE_CMD(beep_msh, beep, beep once);
 #define TEST_QUEUE_SIZE 32
 static beep_state queue[TEST_QUEUE_SIZE];
 static int current = -1;
-static long beep_queue_msh(int argc, char **argv)
-{
+static long beep_queue_msh(int argc, char **argv) {
 	int c = current + 1;
 
 	if (c == TEST_QUEUE_SIZE)
@@ -48,10 +44,8 @@ static long beep_queue_msh(int argc, char **argv)
 }
 DEFINE_CMD(beep_queue_msh, beep_queue, add beep to queue);
 
-static long beep_queue_emit_msh()
-{
-	for (int i = 0; i <= current; i++)
-	{
+static long beep_queue_emit_msh() {
+	for (int i = 0; i <= current; i++) {
 		buzzer_beep(queue[i].toneHz, queue[i].volumePercent, queue[i].timeMs);
 	}
 	current = -1;

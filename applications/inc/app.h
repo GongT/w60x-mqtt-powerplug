@@ -48,8 +48,7 @@ rt_bool_t key_is_pressed();
 void beep_error();
 void buzzer_beep(uint16_t toneHz, uint8_t volumePercent, uint32_t timeMs);
 
-struct beep_state
-{
+struct beep_state {
 	uint16_t toneHz;
 	uint8_t volumePercent;
 	uint32_t timeMs;

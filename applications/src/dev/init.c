@@ -4,8 +4,7 @@
 
 struct rt_device_pwm *pwm_dev;
 
-static int gpio_init()
-{
+static int gpio_init() {
 	KPRINTF_DIM("Start...");
 
 	pwm_dev = (struct rt_device_pwm *)rt_device_find(PWM_DEV_NAME);

@@ -1,7 +1,6 @@
 #include "shell.h"
 
-static long key_press_status_msh(int argc, char **argv)
-{
+static long key_press_status_msh(int argc, char **argv) {
 	int v = rt_pin_read(PIN_KEY);
 	if (key_is_pressed())
 		KPRINTF_DIM("key is pressed. (raw value is %d)", v);

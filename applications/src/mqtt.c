@@ -30,8 +30,7 @@ const char *mqtt_output_topic_button;
 const char *mqtt_output_topic_relay;
 const char *mqtt_output_topic_connected;
 
-static char *create_topic(const char *name)
-{
+static char *create_topic(const char *name) {
 	size_t size = strlen(mqtt_base_topic_name) + strlen(name) + 1;
 	char *buff = malloc(size);
 	assert(buff != NULL);
@@ -44,11 +43,9 @@ static char *create_topic(const char *name)
 	if (VAR == NULL)             \
 		return RT_EINVAL;
 
-static char *create_arg(const char *KEY_NAME)
-{
+static char *create_arg(const char *KEY_NAME) {
 	size_t param_size = get_storage_size(KEY_NAME) + 1;
-	if (param_size == 0)
-	{
+	if (param_size == 0) {
 		KPRINTF_COLOR(9, "%s size is 0", KEY_NAME);
 		return NULL;
 	}
@@ -59,8 +56,7 @@ static char *create_arg(const char *KEY_NAME)
 	return param_stor;
 }
 
-static rt_err_t mqtt_params_init()
-{
+static rt_err_t mqtt_params_init() {
 	if (mqtt_base_topic_name != NULL)
 		return RT_EOK;
 
@@ -78,8 +74,7 @@ static rt_err_t mqtt_params_init()
 	char *port = strchr(server_hostname, ':');
 	if (port == NULL)
 		mqtt_server_port = "8883";
-	else
-	{
+	else {
 		*port = '\0';
 		mqtt_server_port = port + 1;
 	}
@@ -111,13 +106,11 @@ static rt_err_t mqtt_params_init()
 	return RT_EOK;
 }
 
-static void publish_connect()
-{
+static void publish_connect() {
 	action_publish(MQTT_TOPIC_CONNECT, "yes");
 }
 
-int start_mqtt(void)
-{
+int start_mqtt(void) {
 	mqtt_log_init();
 
 	if (mqtt_params_init() != RT_EOK)
@@ -142,8 +135,7 @@ int start_mqtt(void)
 	mqtt_set_will_options(client, mqtt_output_topic_connected, QOS1, 1, "no");
 
 	int ret = mqtt_connect(client);
-	if (ret != KAWAII_MQTT_SUCCESS_ERROR)
-	{
+	if (ret != KAWAII_MQTT_SUCCESS_ERROR) {
 		FATAL_ERROR("mqtt connection failed: %d", ret);
 		return ret;
 	}
@@ -160,8 +152,7 @@ int start_mqtt(void)
 	return 0;
 }
 
-static int _action_publish(enum mqtt_topic topic, const char *send_data, uint8_t retained)
-{
+static int _action_publish(enum mqtt_topic topic, const char *send_data, uint8_t retained) {
 	mqtt_message_t msg;
 	memset(&msg, 0, sizeof(msg));
 
@@ -171,8 +162,7 @@ static int _action_publish(enum mqtt_topic topic, const char *send_data, uint8_t
 	msg.retained = retained;
 
 	const char *topic_str;
-	switch (topic)
-	{
+	switch (topic) {
 	case MQTT_TOPIC_BUTTON_PRESS:
 		topic_str = mqtt_output_topic_button;
 		break;
@@ -197,11 +187,9 @@ static int _action_publish(enum mqtt_topic topic, const char *send_data, uint8_t
 	return r;
 }
 
-int action_publish(enum mqtt_topic topic, const char *send_data)
-{
+int action_publish(enum mqtt_topic topic, const char *send_data) {
 	return _action_publish(topic, send_data, 0);
 }
-int action_publish_retained(enum mqtt_topic topic, const char *send_data)
-{
+int action_publish_retained(enum mqtt_topic topic, const char *send_data) {
 	return _action_publish(topic, send_data, 1);
 }
