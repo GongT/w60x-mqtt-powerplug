@@ -25,6 +25,7 @@ enum main_event_kind
 {
 	SEND_BUTTON = 1,
 	REPORT_RELAY,
+	REPORT_KEEPALIVE,
 	// SET_LED,
 	// SET_BEEP,
 	// SET_RELAY,
@@ -35,11 +36,12 @@ void main_event_queue(enum main_event_kind kind, const char *body, rt_bool_t cop
 enum mqtt_topic
 {
 	MQTT_TOPIC_BUTTON_PRESS = 0,
-	MQTT_TOPIC_CONNECT = 1,
+	MQTT_TOPIC_ALIVE = 1,
 	MQTT_TOPIC_RELAY_STATE = 2,
 };
 int action_publish(enum mqtt_topic type, const char *send_str);
 int action_publish_retained(enum mqtt_topic topic, const char *send_data);
+rt_bool_t is_mqtt_init();
 
 /* 按键 */
 rt_bool_t key_is_pressed();
@@ -72,8 +74,8 @@ enum led_id
 	LED_GREEN = 1,
 } __attribute__((__packed__));
 
-void led_blink(enum led_id id, uint32_t cycle_ms);
-void led_fade(enum led_id id, uint32_t cycle_ms);
+void led_blink(enum led_id id, uint32_t cycle_in_ms);
+void led_fade(enum led_id id, uint32_t cycle_in_ms);
 void led_static(enum led_id id, uint8_t light_percent);
 void led_off(enum led_id id);
 void led_on(enum led_id id);
@@ -89,3 +91,6 @@ __attribute__((noreturn)) void goto_config_mode_and_quit();
 __attribute__((noreturn)) void goto_update_mode_and_quit();
 
 /* wifi */
+
+/* mqtt心跳 */
+void start_keepalive_thread();

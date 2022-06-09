@@ -37,6 +37,11 @@ __attribute__((noreturn)) void start_main_event_loop() {
 		case REPORT_RELAY:
 			action_publish_retained(MQTT_TOPIC_RELAY_STATE, recv_buff.payload);
 			break;
+		case REPORT_KEEPALIVE:
+			led_blink(LED_RED, 1000);
+			action_publish(MQTT_TOPIC_ALIVE, recv_buff.payload);
+			led_off(LED_RED);
+			break;
 		}
 		if (recv_buff.free_payload)
 			free((void *)recv_buff.payload);

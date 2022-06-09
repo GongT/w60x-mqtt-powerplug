@@ -106,6 +106,7 @@ int main(void) {
 
 	real_main_thread = rt_thread_create("user-app", app_main, NULL, 10240, 27, 20);
 	rt_thread_startup(real_main_thread);
+	start_keepalive_thread();
 
 	return 0;
 }

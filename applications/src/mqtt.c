@@ -12,6 +12,8 @@
 // #include <tls_certificate.h>
 #endif // KAWAII_MQTT_NETWORK_TYPE_TLS
 
+rt_bool_t mqtt_init_complete = RT_FALSE;
+
 mqtt_client_t *client = NULL;
 #define DEVICE_ROOT_TOPIC "$devices"
 
@@ -28,7 +30,7 @@ const char *mqtt_input_topic_led;
 const char *mqtt_input_topic_update;
 const char *mqtt_output_topic_button;
 const char *mqtt_output_topic_relay;
-const char *mqtt_output_topic_connected;
+const char *mqtt_output_topic_keepalive;
 
 static char *create_topic(const char *name) {
 	size_t size = strlen(mqtt_base_topic_name) + strlen(name) + 1;
@@ -98,16 +100,12 @@ static rt_err_t mqtt_params_init() {
 	mqtt_input_topic_relay = create_topic("relay");
 	mqtt_input_topic_led = create_topic("led");
 	mqtt_output_topic_relay = create_topic("$relay");
-	mqtt_output_topic_connected = create_topic("connected");
+	mqtt_output_topic_keepalive = create_topic("alive");
 	mqtt_output_topic_button = create_topic("button");
 
 	free(device_title);
 
 	return RT_EOK;
-}
-
-static void publish_connect() {
-	action_publish(MQTT_TOPIC_CONNECT, "yes");
 }
 
 int start_mqtt(void) {
@@ -125,14 +123,13 @@ int start_mqtt(void) {
 	mqtt_set_client_id(client, (char *)mqtt_device_id);
 	mqtt_set_will_flag(client, 1);
 	// mqtt_set_cmd_timeout(client, )
-	mqtt_set_reconnect_handler(client, publish_connect);
 	mqtt_set_keep_alive_interval(client, 30);
 #ifdef KAWAII_MQTT_NETWORK_TYPE_TLS
 	mqtt_set_ca(client, mbedtls_root_certificate);
 #endif
 	mqtt_set_clean_session(client, 1);
 
-	mqtt_set_will_options(client, mqtt_output_topic_connected, QOS1, 1, "no");
+	mqtt_set_will_options(client, mqtt_output_topic_keepalive, QOS0, 0, "");
 
 	int ret = mqtt_connect(client);
 	if (ret != KAWAII_MQTT_SUCCESS_ERROR) {
@@ -148,8 +145,13 @@ int start_mqtt(void) {
 
 	mqtt_subscribe(client, mqtt_input_topic_update, QOS0, mqtt_topic_handler_upgrade);
 
-	publish_connect();
+	mqtt_init_complete = RT_TRUE;
+
 	return 0;
+}
+
+rt_bool_t is_mqtt_init() {
+	return mqtt_init_complete;
 }
 
 static int _action_publish(enum mqtt_topic topic, const char *send_data, uint8_t retained) {
@@ -169,8 +171,8 @@ static int _action_publish(enum mqtt_topic topic, const char *send_data, uint8_t
 	case MQTT_TOPIC_RELAY_STATE:
 		topic_str = mqtt_output_topic_relay;
 		break;
-	case MQTT_TOPIC_CONNECT:
-		topic_str = mqtt_output_topic_connected;
+	case MQTT_TOPIC_ALIVE:
+		topic_str = mqtt_output_topic_keepalive;
 		break;
 	default:
 		KPRINTF_COLOR(9, "action_publish() missing some switch branch!");
