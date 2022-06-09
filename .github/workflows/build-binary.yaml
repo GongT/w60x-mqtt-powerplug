@@ -78,7 +78,9 @@ jobs:
       - name: Clone RT-Thread sources
         run: python control.py rtt update v4.0.3 --github
       - name: Get RTT packages
-        run: python control.py pkgs --force-update
+        run: |
+          sed -i '/SYS_PKGS_DOWNLOAD_ACCELERATE/d' .config
+          python control.py pkgs --force-update
 
       - name: Build
         run: |
@@ -124,4 +126,4 @@ jobs:
       - name: Copy to My Server
         run: |
           ssh -F $SSH_CONFIG_FILE target mkdir -p /data/AppData/data/iot/plug/
-          scp -F $SSH_CONFIG_FILE application.img target:/data/AppData/data/iot/plug/
+          scp -vF $SSH_CONFIG_FILE application.img target:/data/AppData/data/iot/plug/
